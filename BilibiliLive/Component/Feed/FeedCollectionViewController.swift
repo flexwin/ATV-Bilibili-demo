@@ -322,8 +322,6 @@ class FeedCollectionViewController: UIViewController {
 
     func scrollPositionToTop() {
         let indexPath = IndexPath(item: 0, section: 0)
-//            collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
-//            collectionView.setContentOffset(CGPoint(x: 0, y: -collectionEdgeInsetTop), animated: true)
         collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .top)
         collectionView.reloadData()
     }

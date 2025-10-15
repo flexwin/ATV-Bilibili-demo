@@ -246,8 +246,10 @@ struct infoView: View {
                         }
                     }) {
                         Label("播放", systemImage: "play.fill")
+                            .foregroundColor(focusedItem == .leftButton ? .black : .white)
                             .padding(.horizontal, 33)
                     }
+                    .cornerRadius(33)
                     .focused($focusedItem, equals: .leftButton) // 与 @FocusState 绑定
 
                     Button {
@@ -257,7 +259,9 @@ struct infoView: View {
 
                     } label: {
                         Image(systemName: "info.circle")
+                            .foregroundColor(focusedItem == .rightButton ? .black : .white)
                     }
+                    .cornerRadius(33)
                     .focused($focusedItem, equals: .rightButton) // 与 @FocusState 绑定
 
                     Image(systemName: "chevron.right")

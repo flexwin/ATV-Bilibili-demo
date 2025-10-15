@@ -20,6 +20,18 @@ enum FeedDisplayStyle: Codable, CaseIterable {
     }
 }
 
+enum LanchPage: Codable, CaseIterable {
+    case LanchPageFollows
+    case LanchPageFeed
+    case LanchPageHot
+    case LanchPageNormal
+    
+    var hideInSetting: Bool {
+        self == .LanchPageNormal
+    }
+    
+}
+
 class Defaults {
     static let shared = Defaults()
     private init() {}
@@ -28,7 +40,7 @@ class Defaults {
 }
 
 enum Settings {
-    @UserDefaultCodable("Settings.displayStyle", defaultValue: .normal)
+    @UserDefaultCodable("Settings.displayStyle", defaultValue: .large)
     static var displayStyle: FeedDisplayStyle
 
     @UserDefault("Settings.direatlyEnterVideo", defaultValue: false)
@@ -103,6 +115,9 @@ enum Settings {
     @UserDefault("Settings.arealimit.customServer", defaultValue: "")
     static var areaLimitCustomServer: String
 
+    @UserDefault("Settings.ui.hiddenCellIndex", defaultValue: false)
+    static var hiddenCellIndex: Bool
+
     @UserDefault("Settings.ui.sideMenuAutoSelectChange", defaultValue: false)
     static var sideMenuAutoSelectChange: Bool
 
@@ -126,6 +141,9 @@ enum Settings {
 
     @UserDefaultCodable("Settings.danmuStrokeAlpha", defaultValue: .alpha_08)
     static var danmuStrokeAlpha: DanmuStrokeAlpha
+
+    @UserDefaultCodable("Settings.LanchPage", defaultValue: .LanchPageFollows)
+    static var lanchPage: LanchPage
 }
 
 struct MediaQuality {

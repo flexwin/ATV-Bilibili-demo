@@ -138,10 +138,12 @@ class VideoDetailViewController: UIViewController {
 
     @IBOutlet var infoVisualEffectView: UIVisualEffectView! {
         didSet {
-            infoVisualEffectView.layer.cornerRadius = infoEffectViewCornerRadius
             if #available(tvOS 26.0, *) {
+                infoVisualEffectView.layer.cornerRadius = infoEffectViewCornerRadius
                 infoVisualEffectView.effect = UIGlassEffect(style: .clear)
-               
+            } else {
+                infoVisualEffectView.contentView.layer.cornerRadius = infoEffectViewCornerRadius
+                infoVisualEffectView.contentView.clipsToBounds = true
             }
         }
     }
@@ -779,10 +781,14 @@ class RelatedVideoCell: BLMotionCollectionViewCell {
             make.top.left.right.equalToSuperview()
             make.width.equalTo(imageView.snp.height).multipliedBy(16.0 / 9)
         }
-//        imageView.layer.cornerRadius = normailSornerRadius
-//        imageView.clipsToBounds = true
-//        imageView.contentMode = .scaleAspectFill
-        imageView.adjustsImageWhenAncestorFocused = true
+        
+        if #available(tvOS 26.0, *) {
+            imageView.adjustsImageWhenAncestorFocused = true
+        } else {
+            imageView.layer.cornerRadius = normailSornerRadius
+            imageView.clipsToBounds = true
+            imageView.contentMode = .scaleAspectFill
+        }
         titleLabel.snp.makeConstraints { make in
             make.left.equalToSuperview().offset(12)
             make.right.equalToSuperview().offset(-12)

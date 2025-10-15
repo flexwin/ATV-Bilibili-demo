@@ -1,9 +1,11 @@
 //
-//  FouceToMenuView.swift
+//  FocusToMenuView.swift
 //  BilibiliLive
 //
-//  Created by mantieus on 2025/10/13.
+//  Created by iManTie on 10/16/25.
 //
+//
+
 
 import UIKit
 

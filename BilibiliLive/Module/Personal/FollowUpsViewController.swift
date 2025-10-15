@@ -155,8 +155,10 @@ class UpCell: BLMotionCollectionViewCell {
     override func didUpdateFocus(in context: UIFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {
         super.didUpdateFocus(in: context, with: coordinator)
         if isFocused {
+            contentView.backgroundColor = UIColor(named: "menuCellColor")
             startScroll()
         } else {
+            contentView.backgroundColor = UIColor(named: "bgColor")
             stopScroll()
         }
     }

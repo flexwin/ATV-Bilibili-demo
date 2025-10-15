@@ -89,7 +89,7 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
         collectionView.remembersLastFocusedIndexPath = false
         collectionView.snp.makeConstraints { make in
             make.top.right.bottom.equalToSuperview()
-            make.left.equalToSuperview().offset(20)
+            make.left.equalToSuperview().offset(40)
         }
 
         collectionView.delegate = self
@@ -146,6 +146,14 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
             }
 
             SectionModel(title: "界面") {
+                Actions(title: "启动时默认显示页面", message: "重启app生效",
+                        current: Settings.lanchPage.desp,
+                        options: LanchPage.allCases.filter({ !$0.hideInSetting }),
+                        optionString: LanchPage.allCases.filter({ !$0.hideInSetting }).map({ $0.desp }))
+                {
+                    Settings.lanchPage = $0
+                }
+
                 Actions(title: "视频每行显示个数", message: "重启app生效",
                         current: Settings.displayStyle.desp,
                         options: FeedDisplayStyle.allCases.filter({ !$0.hideInSetting }),
@@ -154,6 +162,7 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
                     Settings.displayStyle = $0
                 }
                 Toggle(title: "侧边栏菜单自动切换", setting: Settings.sideMenuAutoSelectChange, onChange: Settings.sideMenuAutoSelectChange.toggle())
+                Toggle(title: "隐藏视频的序号", setting: Settings.hiddenCellIndex, onChange: Settings.hiddenCellIndex.toggle())
 
                 Toggle(title: "不显示详情页直接进入视频",
                        setting: Settings.direatlyEnterVideo,
@@ -421,6 +430,21 @@ extension FeedDisplayStyle {
             return "\(normalItmeCount)个"
         case .sideBar:
             return "-"
+        }
+    }
+}
+
+extension LanchPage {
+    var desp: String {
+        switch self {
+        case .LanchPageFollows:
+            return "我的关注"
+        case .LanchPageFeed:
+            return "推荐"
+        case .LanchPageHot:
+            return "热门视频"
+        case .LanchPageNormal:
+            return "我的关注"
         }
     }
 }

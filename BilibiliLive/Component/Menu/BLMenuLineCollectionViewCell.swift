@@ -9,9 +9,10 @@ import UIKit
 
 class BLMenuLineCollectionViewCell: BLSettingLineCollectionViewCell {
     var iconImageView = UIImageView()
+    var normailSelectView = UIView()
     override func addsubViews() {
-        
 //        selectedWhiteView.setAutoGlassEffectView(cornerRadius: selectedWhiteView.height / 2)
+        //上下选择的view
         selectedWhiteView.setCornerRadius(cornerRadius: height / 2)
         selectedWhiteView.backgroundColor = UIColor(named: "menuCellColor")
         selectedWhiteView.isHidden = !isFocused
@@ -20,11 +21,21 @@ class BLMenuLineCollectionViewCell: BLSettingLineCollectionViewCell {
             make.edges.equalToSuperview()
         }
         selectedWhiteView.alpha = 0.7
+        
+        //之前选中的view
+        addSubview(normailSelectView)
+        normailSelectView.snp.makeConstraints { make in
+            make.edges.equalTo(selectedWhiteView)
+        }
+        normailSelectView.isHidden = true
+        normailSelectView.layer.cornerRadius = selectedWhiteView.layer.cornerRadius
+        normailSelectView.backgroundColor = UIColor(named: "menuCellColor")?.withAlphaComponent(0.4)
+
         addSubview(iconImageView)
         let imageViewHeight = 32.0
         iconImageView.setCornerRadius(cornerRadius: imageViewHeight / 2.0)
         iconImageView.contentMode = .scaleAspectFit
-        
+
         iconImageView.setImageColor(color: UIColor(named: "titleColor"))
         iconImageView.snp.makeConstraints { make in
             make.width.height.equalTo(imageViewHeight)
@@ -41,5 +52,10 @@ class BLMenuLineCollectionViewCell: BLSettingLineCollectionViewCell {
         titleLabel.textAlignment = .left
         titleLabel.font = UIFont.systemFont(ofSize: 26, weight: .medium)
         titleLabel.textColor = UIColor(named: "titleColor")
+    }
+    
+    override func updateView() {
+        selectedWhiteView.isHidden = !(isFocused )
+        normailSelectView.isHidden = !isSelected
     }
 }

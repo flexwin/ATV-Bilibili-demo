@@ -11,6 +11,8 @@ class BLSettingLineCollectionViewCell: BLMotionCollectionViewCell {
     let effectView = UIVisualEffectView(effect: UIBlurEffect(style: .light))
     let selectedWhiteView = UIView()
     let titleLabel = UILabel()
+    var didUpdateFocus: ((_ isFocused: Bool) -> Void)?
+    
     override var isSelected: Bool {
         didSet {
             updateView()
@@ -52,6 +54,11 @@ class BLSettingLineCollectionViewCell: BLMotionCollectionViewCell {
     override func didUpdateFocus(in context: UIFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {
         super.didUpdateFocus(in: context, with: coordinator)
         updateView()
+        //前一个
+        if !(context.previouslyFocusedView is BLSettingLineCollectionViewCell) ||
+           !(context.nextFocusedView is BLSettingLineCollectionViewCell){
+            didUpdateFocus?(isFocused)
+        }
     }
 
     func updateView() {

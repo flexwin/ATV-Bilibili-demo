@@ -32,52 +32,45 @@ class PersonalViewController: UIViewController, BLTabBarContentVCProtocol {
     }
 
     @IBOutlet var contentView: UIView!
-    @IBOutlet var avatarImageView: UIImageView!
-    @IBOutlet var usernameLabel: UILabel!
     @IBOutlet var leftCollectionView: UICollectionView!
     weak var currentViewController: UIViewController?
 
+    @IBOutlet var menusbgView: UIView!
     @IBOutlet var menusView: UIView!
 
     @IBOutlet var menusLeft: NSLayoutConstraint!
 
+    @IBOutlet var leftCollectionViewLeft: NSLayoutConstraint!
+
+    private var currentIndex: IndexPath?
+    private var leftCollectionViewShowLeft: CGFloat = 40.0
+    private var leftCollectionViewHiddenLeft: CGFloat = -300
+
     var cellModels = [CellModel]()
+    
+    private var isFirstShowMenus = true
     override func viewDidLoad() {
         super.viewDidLoad()
         setupData()
+        leftCollectionView.backgroundColor = .clear
         leftCollectionView.reloadData()
-        avatarImageView.layer.cornerRadius = avatarImageView.frame.size.width / 2
         leftCollectionView.register(BLSettingLineCollectionViewCell.self, forCellWithReuseIdentifier: "cell")
         leftCollectionView.selectItem(at: IndexPath(row: 0, section: 0), animated: false, scrollPosition: .top)
         collectionView(leftCollectionView, didSelectItemAt: IndexPath(row: 0, section: 0))
-        WebRequest.requestLoginInfo { [weak self] response in
-            switch response {
-            case let .success(json):
-                self?.avatarImageView.kf.setImage(with: URL(string: json["face"].stringValue))
-                self?.usernameLabel.text = json["uname"].stringValue
-            case .failure:
-                break
+        menusLeft.constant = leftCollectionViewShowLeft
+
+        if #available(tvOS 26.0, *) {
+            menusbgView.setGlassEffectView(style: .regular, cornerRadius: bigSornerRadius)
+        } else {
+            menusbgView.setBlurEffectView(cornerRadius: bigSornerRadius)
+            if #available(tvOS 26.0, *) {
+                menusbgView.setAutoGlassEffectView(cornerRadius: bigSornerRadius)
+            } else {
+                menusbgView.setBlurEffectView(cornerRadius: lessBigSornerRadius)
+                menusbgView.setCornerRadius(cornerRadius: lessBigSornerRadius, borderColor: .lightGray, borderWidth: 0.5)
             }
         }
-        menusLeft.constant = 40
     }
-
-//    override func viewWillAppear(_ animated: Bool) {
-//        super.viewWillAppear(animated)
-//
-//        BLAnimate(withDuration: 0.3) {
-//            self.menusLeft.constant = 40
-//            self.view.layoutIfNeeded()
-//        }
-//    }
-//
-//    override func viewWillDisappear(_ animated: Bool) {
-//        super.viewWillDisappear(animated)
-//        BLAnimate(withDuration: 0.3) {
-//            self.menusLeft.constant = -300
-//            self.view.layoutIfNeeded()
-//        }
-//    }
 
     func setupData() {
         let setting = CellModel(title: "设置", contentVC: SettingsViewController())
@@ -130,12 +123,47 @@ class PersonalViewController: UIViewController, BLTabBarContentVCProtocol {
         alert.addAction(UIAlertAction(title: "取消", style: .cancel))
         present(alert, animated: true)
     }
+
+    func isShowMenus(isFocused: Bool) {
+        if isFirstShowMenus {
+            isFirstShowMenus = false
+            return
+        }
+
+        if isFocused {
+            UIView.animate(springDuration: 0.4, bounce: 0.2) {
+                leftCollectionViewLeft.constant = leftCollectionViewShowLeft
+                self.view.layoutIfNeeded()
+            }
+        } else {
+            UIView.animate(springDuration: 0.4, bounce: 0.6) {
+                leftCollectionViewLeft.constant = leftCollectionViewHiddenLeft
+                self.view.layoutIfNeeded()
+            }
+        }
+    }
+
+    func focus(on indexPath: IndexPath) {
+        currentIndex = indexPath
+        view.setNeedsFocusUpdate()
+        view.updateFocusIfNeeded()
+    }
 }
 
 extension PersonalViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! BLSettingLineCollectionViewCell
         cell.titleLabel.text = cellModels[indexPath.item].title
+        cell.didUpdateFocus = { [weak self] isFocused in
+
+            if isFocused && self?.leftCollectionViewLeft.constant == self?.leftCollectionViewHiddenLeft {
+                self?.isShowMenus(isFocused: isFocused)
+            }
+
+            if !isFocused && self?.leftCollectionViewLeft.constant == self?.leftCollectionViewShowLeft {
+                self?.isShowMenus(isFocused: isFocused)
+            }
+        }
         return cell
     }
 
@@ -151,6 +179,10 @@ extension PersonalViewController: UICollectionViewDelegate {
             setViewController(vc: vc)
         }
         model.action?()
+        currentIndex = indexPath
+        BLAfter(afterTime: 0.3) {
+            self.isShowMenus(isFocused: false)
+        }
     }
 
     func collectionView(_ collectionView: UICollectionView, didUpdateFocusIn context: UICollectionViewFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {

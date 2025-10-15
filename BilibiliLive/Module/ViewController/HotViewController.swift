@@ -8,6 +8,14 @@
 import UIKit
 
 class HotViewController: StandardVideoCollectionViewController<VideoDetail.Info> {
+    
+    override func viewDidLoad() {
+        self.isNeedFocusToMenu = {
+            true
+        }
+        super.viewDidLoad()
+    }
+    
     override func setupCollectionView() {
         super.setupCollectionView()
         collectionVC.isShowCove = true

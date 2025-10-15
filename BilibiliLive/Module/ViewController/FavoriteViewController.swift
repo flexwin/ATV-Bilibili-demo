@@ -38,7 +38,7 @@ class FavoriteViewController: CategoryViewController {
 
             initTypeCollectionView()
             if let vc = currentViewController as? StandardVideoCollectionViewController<FavData> {
-                vc.collectionVC.collectionView.contentInset = UIEdgeInsets(top: 160, left: 0, bottom: 0, right: 0)
+                vc.collectionVC.collectionView.contentInset = UIEdgeInsets(top: 20, left: 0, bottom: 0, right: 0)
             }
         }
     }

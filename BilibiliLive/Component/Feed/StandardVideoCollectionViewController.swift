@@ -14,6 +14,7 @@ protocol PlayableData: DisplayData {
 
 class StandardVideoCollectionViewController<T: PlayableData>: UIViewController, BLTabBarContentVCProtocol {
     let focusToMenuView = FocusToMenuView()
+    
     let collectionVC = FeedCollectionViewController()
     var lastReloadDate = Date()
     var reloadInterval: TimeInterval = 60 * 60
@@ -25,31 +26,35 @@ class StandardVideoCollectionViewController<T: PlayableData>: UIViewController, 
     var didSelectToLastLeft: (() -> Void)?
     var isShowTopCover: (() -> Bool)?
     var isNeedFocusToMenu: (() -> Bool)?
+    var isToToped: ((_ isTop: Bool) -> Void)?
 
     deinit {
         print("🧹 StandardVideoCollectionViewController deinitialized")
     }
-    
+
     override var preferredFocusEnvironments: [UIFocusEnvironment] {
         return [collectionVC.collectionView]
     }
 
     override func viewDidLoad() {
         collectionVC.isShowTopCover = isShowTopCover
-
         super.viewDidLoad()
         setupCollectionView()
         collectionVC.show(in: self)
-        collectionVC.isToToped = {[weak self] isToped in
-            self?.focusToMenuView.isUserInteractionEnabled = !isToped
+        BLAfter(afterTime: 0.2) {
+            self.reloadData()
         }
-        
-        reloadData()
+
         NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
 
         collectionVC.backMenuAction = backMenuAction
         collectionVC.didUpdateFocus = didUpdateFocus
         collectionVC.didSelectToLastLeft = didSelectToLastLeft
+        
+        collectionVC.isToToped = {[weak self] isToped in
+            self?.focusToMenuView.isUserInteractionEnabled = !isToped
+            self?.isToToped?(isToped)
+        }
         
         BLAfter(afterTime: 5) {
             if self.isNeedFocusToMenu?() ?? false{

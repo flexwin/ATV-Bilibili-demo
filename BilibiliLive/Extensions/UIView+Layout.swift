@@ -52,6 +52,7 @@ extension UIView {
 
         if cornerRadius ?? 0 > 0 {
             eView.contentView.setCornerRadius(cornerRadius: cornerRadius!, cornerMask: cornerMask)
+            eView.contentView.clipsToBounds = true
         }
 
         sendSubviewToBack(eView)
@@ -59,7 +60,7 @@ extension UIView {
 
     func setAutoGlassEffectView(
         cornerRadius: CGFloat? = 0,
-        cornerMask: CACornerMask? = nil
+        cornerMask: CACornerMask? = nil,
     ) {
         if #available(tvOS 26.0, *) {
             let glassEffect = UIGlassEffect(style: .clear)

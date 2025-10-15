@@ -19,6 +19,12 @@ class CategoryViewController: UIViewController, BLTabBarContentVCProtocol {
     var categories = [CategoryDisplayModel]()
     let contentView = UIView()
     weak var currentViewController: UIViewController?
+    private var currentIndex: IndexPath?
+    
+    private var isFirstShowMenus = true
+
+    private var leftCollectionViewShowLeft: CGFloat = 40.0
+    private var leftCollectionViewHiddenLeft: CGFloat = -300
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,8 +45,7 @@ class CategoryViewController: UIViewController, BLTabBarContentVCProtocol {
 
         view.addSubview(contentView)
         contentView.snp.makeConstraints { make in
-            make.bottom.right.left.equalToSuperview()
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.edges.equalToSuperview()
         }
 
         typeCollectionView = UICollectionView(frame: .zero, collectionViewLayout: BLSettingLineCollectionViewCell.makeLayout())
@@ -56,9 +61,19 @@ class CategoryViewController: UIViewController, BLTabBarContentVCProtocol {
         typeCollectionView.delegate = self
         typeCollectionView.selectItem(at: IndexPath(item: 0, section: 0), animated: false, scrollPosition: .top)
         collectionView(typeCollectionView, didSelectItemAt: IndexPath(item: 0, section: 0))
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
 
         let backgroundView = UIView()
-        backgroundView.setAutoGlassEffectView(cornerRadius: bigSornerRadius)
+        if #available(tvOS 26.0, *) {
+            backgroundView.setAutoGlassEffectView(cornerRadius: bigSornerRadius)
+        } else {
+            backgroundView.setBlurEffectView(cornerRadius: lessBigSornerRadius)
+            backgroundView.setCornerRadius(cornerRadius: lessBigSornerRadius, borderColor: .lightGray, borderWidth: 0.5)
+        }
+
         view.insertSubview(backgroundView, at: 1)
         backgroundView.snp.makeConstraints { make in
             make.left.right.equalTo(typeCollectionView)
@@ -74,12 +89,20 @@ class CategoryViewController: UIViewController, BLTabBarContentVCProtocol {
         currentViewController = vc
         addChild(vc)
         contentView.addSubview(vc.view)
-        vc.view.makeConstraintsToBindToSuperview()
+        vc.view.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
         vc.didMove(toParent: self)
     }
 
     func reloadData() {
         (currentViewController as? BLTabBarContentVCProtocol)?.reloadData()
+    }
+
+    func focus(on indexPath: IndexPath) {
+        currentIndex = indexPath
+        view.setNeedsFocusUpdate()
+        view.updateFocusIfNeeded()
     }
 }
 
@@ -99,17 +122,25 @@ extension CategoryViewController: UICollectionViewDataSource {
     }
 
     func isShowMenus(isFocused: Bool) {
-        UIView.animate(springDuration: 0.4, bounce: 0.2) {
-            if isFocused {
+        if isFirstShowMenus {
+            isFirstShowMenus = false
+            return
+        }
+
+        if isFocused {
+            UIView.animate(springDuration: 0.4, bounce: 0.2) {
                 self.typeCollectionView.snp.updateConstraints { make in
-                    make.left.equalToSuperview().offset(40)
+                    make.left.equalToSuperview().offset(leftCollectionViewShowLeft)
                 }
-            } else {
-                self.typeCollectionView.snp.updateConstraints { make in
-                    make.left.equalToSuperview().offset(-220)
-                }
+                view.layoutIfNeeded()
             }
-            self.view.layoutIfNeeded()
+        } else {
+            UIView.animate(springDuration: 0.4, bounce: 0.6) {
+                self.typeCollectionView.snp.updateConstraints { make in
+                    make.left.equalToSuperview().offset(leftCollectionViewHiddenLeft)
+                }
+                view.layoutIfNeeded()
+            }
         }
     }
 }
@@ -118,6 +149,7 @@ extension CategoryViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         isShowMenus(isFocused: false)
         setViewController(vc: categories[indexPath.item].contentVC)
+        currentIndex = indexPath
     }
 
     func collectionView(_ collectionView: UICollectionView, didUpdateFocusIn context: UICollectionViewFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {

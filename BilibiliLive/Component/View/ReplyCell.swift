@@ -14,6 +14,8 @@ class ReplyCell: UICollectionViewCell {
     @IBOutlet var userNameLabel: UILabel!
     @IBOutlet var contenLabel: UILabel!
 
+    @IBOutlet var selectView: UIView!
+
     func config(replay: Replys.Reply) {
         avatarImageView.kf.setImage(
             with: URL(string: replay.member.avatar),
@@ -29,11 +31,16 @@ class ReplyCell: UICollectionViewCell {
         } else {
             contenLabel.text = replay.content.message
         }
+
+        BLAnimate(withDuration: 0.3) {
+            self.selectView.setCornerRadius(cornerRadius: 70)
+        }
     }
 
     override func didUpdateFocus(in context: UIFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {
         super.didUpdateFocus(in: context, with: coordinator)
         userNameLabel.textColor = isFocused ? .black : UIColor(named: "label3")
         contenLabel.textColor = isFocused ? .black : UIColor(named: "label3")
+        selectView.backgroundColor = isFocused ? .white.withAlphaComponent(0.4) : .clear
     }
 }

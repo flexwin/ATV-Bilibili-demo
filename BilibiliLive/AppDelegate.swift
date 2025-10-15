@@ -7,6 +7,7 @@
 
 import AVFoundation
 import CocoaLumberjackSwift
+import SwiftUI
 import UIKit
 
 @main
@@ -29,6 +30,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             } else {
                 ApiRequest.refreshToken()
             }
+
+//            // 创建 SwiftUI 的根视图
+//            let swiftUIView = splitView()
+//
+//            // 用 UIHostingController 包装
+//            let hostingController = UIHostingController(rootView: swiftUIView)
+//
+//            // 约束铺满整个屏幕
+//            hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+//            window?.rootViewController = hostingController
+
             window?.rootViewController = MenusViewController.create()
         } else {
             window?.rootViewController = LoginViewController.create()

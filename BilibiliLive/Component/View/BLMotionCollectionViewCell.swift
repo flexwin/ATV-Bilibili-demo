@@ -13,8 +13,6 @@ class BLMotionCollectionViewCell: UICollectionViewCell {
     private var motionEffectH: UIInterpolatingMotionEffect!
     var scaleFactor: CGFloat = 1
 
-    var didUpdateFocus: ((_ isFocused: Bool) -> Void)?
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         setup()
@@ -26,6 +24,12 @@ class BLMotionCollectionViewCell: UICollectionViewCell {
     }
 
     func setup() {
+        
+        if #available(tvOS 26.0, *) {
+            scaleFactor = 1
+        } else {
+            scaleFactor = 1.1
+        }
         motionEffectV = UIInterpolatingMotionEffect(keyPath: "center.y", type: .tiltAlongVerticalAxis)
         motionEffectV.maximumRelativeValue = 8
         motionEffectV.minimumRelativeValue = -8
@@ -50,7 +54,6 @@ class BLMotionCollectionViewCell: UICollectionViewCell {
                 self.removeMotionEffect(self.motionEffectV)
             }
         }
-        didUpdateFocus?(isFocused)
     }
 
     func updateTransform() {

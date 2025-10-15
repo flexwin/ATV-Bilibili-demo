@@ -29,6 +29,8 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
     private var menuRecognizer: UITapGestureRecognizer?
     private var selectMenuItem: CellModel?
 
+    private var currentIndex: IndexPath?
+
     @IBOutlet var menusView: UIView! {
         didSet {
             if #available(tvOS 26.0, *) {
@@ -73,8 +75,21 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
         leftCollectionView.reloadData()
         avatarImageView.layer.cornerRadius = avatarImageView.frame.size.width / 2
         leftCollectionView.register(BLMenuLineCollectionViewCell.self, forCellWithReuseIdentifier: "cell")
-        leftCollectionView.selectItem(at: IndexPath(row: 0, section: 0), animated: false, scrollPosition: .top)
-        collectionView(leftCollectionView, didSelectItemAt: IndexPath(row: 0, section: 0))
+
+        if Settings.lanchPage == .LanchPageFollows {
+            leftCollectionView.selectItem(at: IndexPath(row: 0, section: 0), animated: false, scrollPosition: .top)
+            collectionView(leftCollectionView, didSelectItemAt: IndexPath(row: 0, section: 0))
+        } else if Settings.lanchPage == .LanchPageFeed {
+            leftCollectionView.selectItem(at: IndexPath(row: 1, section: 0), animated: false, scrollPosition: .top)
+            collectionView(leftCollectionView, didSelectItemAt: IndexPath(row: 1, section: 0))
+        } else if Settings.lanchPage == .LanchPageHot {
+            leftCollectionView.selectItem(at: IndexPath(row: 2, section: 0), animated: false, scrollPosition: .top)
+            collectionView(leftCollectionView, didSelectItemAt: IndexPath(row: 2, section: 0))
+        } else {
+            leftCollectionView.selectItem(at: IndexPath(row: 0, section: 0), animated: false, scrollPosition: .top)
+            collectionView(leftCollectionView, didSelectItemAt: IndexPath(row: 0, section: 0))
+        }
+
         WebRequest.requestLoginInfo { [weak self] response in
             switch response {
             case let .success(json):
@@ -112,6 +127,20 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
         }
     }
 
+    override var preferredFocusEnvironments: [UIFocusEnvironment] {
+        guard let indexPath = currentIndex,
+              let cell = leftCollectionView.cellForItem(at: indexPath) else {
+            return [leftCollectionView]
+        }
+        return [cell]
+    }
+
+    func focus(on indexPath: IndexPath) {
+        currentIndex = indexPath
+        view.setNeedsFocusUpdate()
+        view.updateFocusIfNeeded()
+    }
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
     }
@@ -123,21 +152,25 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
     @objc func handleRightPress() {
         hiddenMenus()
     }
+
     func showMenus() {
-        guard !menuIsShowing else { return }
-
+//        guard !menuIsShowing else { return }
+        BLAnimate(withDuration: 0.3) {
+            self.menusView.alpha = 1
+            self.homeIcon.alpha = 1
+        }
         BLAfter(afterTime: 0.1) {
-            self.view.setNeedsFocusUpdate()
-            self.view.updateFocusIfNeeded()
-
+            if let currentIndex = self.currentIndex {
+                self.focus(on: currentIndex)
+            }
             // 先轻微预备动画（让 UI 有呼吸感）
             UIView.animate(withDuration: 0.15, delay: 0, options: [.curveEaseOut]) {
                 self.menusView.transform = CGAffineTransform(scaleX: 0.97, y: 0.97)
             } completion: { _ in
                 UIView.animate(withDuration: 0.45,
-                          delay: 0,
-                          usingSpringWithDamping: 0.8,
-                          initialSpringVelocity: 0.5) {
+                               delay: 0,
+                               usingSpringWithDamping: 0.8,
+                               initialSpringVelocity: 0.5) {
                     if let recognizer = self.menuRecognizer {
                         self.view.removeGestureRecognizer(recognizer)
                     }
@@ -179,12 +212,17 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
             }
         }
     }
-    
+
     func hiddenMenus(isHiddenSubView: Bool = false) {
+        
+        if isHiddenSubView{
+            menusView.alpha = 0
+            self.homeIcon.alpha = 0
+        }
         UIView.animate(withDuration: 0.4,
-                  delay: 0,
-                  usingSpringWithDamping: 0.85,
-                  initialSpringVelocity: 0.5) {
+                       delay: 0,
+                       usingSpringWithDamping: 0.85,
+                       initialSpringVelocity: 0.5) {
             self.leftCollectionView.alpha = 0
             self.homeIcon.alpha = isHiddenSubView ? 0 : 1
 
@@ -193,7 +231,7 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
             self.menusViewHeight.constant = 60
             self.headViewLeading.constant = 5
             self.headingViewTop.constant = 5
-            self.menuViewWidth.constant = 180
+            self.menuViewWidth.constant = 190
             self.menusView.setCornerRadius(cornerRadius: 30)
 
             // 模糊阴影逐渐减弱
@@ -233,25 +271,28 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
         }
         let followsViewController = FollowsViewController()
         followsViewController.didSelectToLastLeft = lastLeft
-        followsViewController.isShowTopCover = {
-            true
+        followsViewController.isToToped = {[weak self] isToped in
+            if isToped {
+                BLAnimate(withDuration: 0.3) {
+                    self?.menusView.alpha = 1
+                    self?.homeIcon.alpha = 1
+                }
+            } else {
+                BLAnimate(withDuration: 0.3) {
+                    self?.menusView.alpha = 0
+                    self?.homeIcon.alpha = 0
+                }
+            }
         }
-        followsViewController.isNeedFocusToMenu = {
-            true
-        }
+
         cellModels.append(CellModel(iconImage: UIImage(systemName: "person.crop.circle.badge.checkmark"), title: "关注", contentVC: followsViewController))
 
         let FeedViewController = FeedViewController()
-        FeedViewController.isNeedFocusToMenu = {
-            true
-        }
+
         FeedViewController.didSelectToLastLeft = lastLeft
         cellModels.append(CellModel(iconImage: UIImage(systemName: "timelapse"), title: "推荐", contentVC: FeedViewController))
 
         let HotViewController = HotViewController()
-        HotViewController.isNeedFocusToMenu = {
-            true
-        }
         HotViewController.didSelectToLastLeft = lastLeft
         cellModels.append(CellModel(iconImage: UIImage(systemName: "livephoto.play"), title: "热门", contentVC: HotViewController))
 
@@ -259,6 +300,7 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
         cellModels.append(CellModel(iconImage: UIImage(systemName: "infinity.circle"), title: "直播", contentVC: LiveViewController()))
 
         cellModels.append(CellModel(iconImage: UIImage(systemName: "star.circle"), title: "收藏", contentVC: FavoriteViewController()))
+        cellModels.append(CellModel(iconImage: UIImage(systemName: "gauge.with.needle"), title: "历史记录", contentVC: HistoryViewController()))
 
         let logout = CellModel(iconImage: UIImage(systemName: "magnifyingglass.circle"), title: "搜索", autoSelect: false) {
             [weak self] in
@@ -284,7 +326,7 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
         vc.didMove(toParent: self)
 
         BLAfter(afterTime: 0.3) {
-            self.hiddenMenus(isHiddenSubView: true)
+            self.hiddenMenus(isHiddenSubView: false)
         }
     }
 
@@ -341,6 +383,8 @@ extension MenusViewController: UICollectionViewDelegate {
         }
         selectMenuItem = model
         model.action?()
+
+        currentIndex = indexPath
     }
 
     func collectionView(_ collectionView: UICollectionView, didUpdateFocusIn context: UICollectionViewFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {

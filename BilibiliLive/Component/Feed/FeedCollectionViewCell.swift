@@ -26,7 +26,7 @@ class FeedCollectionViewCell: BLMotionCollectionViewCell {
     deinit {
         print("🧹 FeedCollectionViewCell deinitialized")
     }
-    
+
     override func setup() {
         super.setup()
         let longpress = UILongPressGestureRecognizer(target: self, action: #selector(actionLongPress(sender:)))
@@ -39,7 +39,7 @@ class FeedCollectionViewCell: BLMotionCollectionViewCell {
             make.top.equalToSuperview()
             make.height.equalTo(imageView.snp.width).multipliedBy(9.0 / 16)
         }
-        
+
 //        contentView.addSubview(imageViewParallax)
 //        imageViewParallax.snp.makeConstraints { make in
 //            make.leading.equalToSuperview()
@@ -47,28 +47,30 @@ class FeedCollectionViewCell: BLMotionCollectionViewCell {
 //            make.top.equalToSuperview()
 //            make.height.equalTo(imageViewParallax.snp.width).multipliedBy(9.0 / 16)
 //        }
-//        
+//
 //        imageViewParallax.image = UIImage(named: "cover")
 //        imageViewParallax.backgroundColor = .red
-        
-        imageView.adjustsImageWhenAncestorFocused = true
-        let style = styleOverride ?? Settings.displayStyle
 
-//        switch style.feedColCount {
-//        case 3:
-//            imageView.layer.cornerRadius = lessBigSornerRadius
-//        case 4:
-//            imageView.layer.cornerRadius = lessBigSornerRadius
-//        case 5:
-//            imageView.layer.cornerRadius = normailSornerRadius
-//        default:
-//            imageView.layer.cornerRadius = lessBigSornerRadius
-//        }
-//        imageView.layer.cornerCurve = .continuous
-//        imageView.layer.masksToBounds = true
-//        imageView.layer.shouldRasterize = true
-//        imageView.layer.rasterizationScale = UIScreen.main.scale
-//        imageView.contentMode = .scaleAspectFill
+        let style = styleOverride ?? Settings.displayStyle
+        if #available(tvOS 26.0, *) {
+            imageView.adjustsImageWhenAncestorFocused = true
+        } else {
+            switch style.feedColCount {
+            case 3:
+                imageView.layer.cornerRadius = lessBigSornerRadius
+            case 4:
+                imageView.layer.cornerRadius = lessBigSornerRadius
+            case 5:
+                imageView.layer.cornerRadius = normailSornerRadius
+            default:
+                imageView.layer.cornerRadius = lessBigSornerRadius
+            }
+            imageView.layer.cornerCurve = .continuous
+            imageView.layer.masksToBounds = true
+            imageView.layer.shouldRasterize = true
+            imageView.layer.rasterizationScale = UIScreen.main.scale
+            imageView.contentMode = .scaleAspectFill
+        }
 
         imageView.addSubview(avatarView)
 
@@ -83,8 +85,10 @@ class FeedCollectionViewCell: BLMotionCollectionViewCell {
         let stackView = UIStackView()
         infoView.addSubview(hStackView)
 
-        hStackView.addArrangedSubview(sortLabel)
-        sortLabel.textColor = .white
+        if !Settings.hiddenCellIndex {
+            hStackView.addArrangedSubview(sortLabel)
+            sortLabel.textColor = .white
+        }
 
         hStackView.addArrangedSubview(stackView)
         hStackView.snp.makeConstraints { make in
@@ -126,7 +130,6 @@ class FeedCollectionViewCell: BLMotionCollectionViewCell {
         upLabel.adjustsFontSizeToFitWidth = true
         upLabel.minimumScaleFactor = 0.1
     }
-   
 
     func setup(data: any DisplayData, indexPath: IndexPath? = nil) {
         titleLabel.text = data.title

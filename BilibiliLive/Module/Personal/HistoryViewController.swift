@@ -28,7 +28,9 @@ class HistoryViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        reloadData()
+        BLAfter(afterTime: 0.2) {
+            self.reloadData()
+        }
     }
 }
 

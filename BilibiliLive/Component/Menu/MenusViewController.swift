@@ -34,7 +34,7 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
             if #available(tvOS 26.0, *) {
                 menusView.setGlassEffectView(style: .clear,
                                              cornerRadius: lessBigSornerRadius,
-                                             tintColor: UIColor(named: "mainBgColor")?.withAlphaComponent(0.7))
+                                             tintColor: UIColor(named: "mainBgColor")?.withAlphaComponent(0.9))
 
             } else {
                 menusView.setBlurEffectView(cornerRadius: lessBigSornerRadius)

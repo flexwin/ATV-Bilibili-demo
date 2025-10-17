@@ -144,6 +144,7 @@ enum Settings {
 
     @UserDefaultCodable("Settings.LanchPage", defaultValue: .LanchPageFollows)
     static var lanchPage: LanchPage
+    
 }
 
 struct MediaQuality {

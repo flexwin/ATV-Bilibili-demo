@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		0A41EE192A630FEA0066444C /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = 0A41EE182A630FEA0066444C /* SwiftProtobuf */; };
 		2806E51E2C1593A000164C10 /* LookinServer in Frameworks */ = {isa = PBXBuildFile; productRef = 2806E51D2C1593A000164C10 /* LookinServer */; };
+		2F8C2FB02EA1E04B00E31225 /* TVServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2F8C2FAF2EA1E04B00E31225 /* TVServices.framework */; };
+		2F8C2FB72EA1E04B00E31225 /* BiliTopShelfExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2F8C2FAD2EA1E04B00E31225 /* BiliTopShelfExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		49078E47291BEA2400F556BD /* PocketSVG in Frameworks */ = {isa = PBXBuildFile; productRef = 49078E46291BEA2400F556BD /* PocketSVG */; };
 		494741C329016CCE005D6885 /* MarqueeLabel in Frameworks */ = {isa = PBXBuildFile; productRef = 494741C229016CCE005D6885 /* MarqueeLabel */; };
 		49508E0F2943420100D26812 /* CocoaLumberjack in Frameworks */ = {isa = PBXBuildFile; productRef = 49508E0E2943420100D26812 /* CocoaLumberjack */; };
@@ -28,7 +30,28 @@
 		F9B57378260F6BB400771ED5 /* SwiftyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = F9B57377260F6BB400771ED5 /* SwiftyJSON */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		2F8C2FB52EA1E04B00E31225 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F9B57348260F5F7400771ED5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2F8C2FAC2EA1E04B00E31225;
+			remoteInfo = BiliTopShelfExtension;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
+		2F8C2FB82EA1E04B00E31225 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				2F8C2FB72EA1E04B00E31225 /* BiliTopShelfExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		499C75F7293096EC003160FB /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -43,10 +66,26 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2F8C2FAD2EA1E04B00E31225 /* BiliTopShelfExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BiliTopShelfExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		2F8C2FAF2EA1E04B00E31225 /* TVServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = TVServices.framework; path = System/Library/Frameworks/TVServices.framework; sourceTree = SDKROOT; };
 		F9B57350260F5F7400771ED5 /* BilibiliLive.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BilibiliLive.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		2F4F4E3E2EA213E900847139 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Module/ShareTopShelf/TopShelfDataManager.swift,
+			);
+			target = 2F8C2FAC2EA1E04B00E31225 /* BiliTopShelfExtension */;
+		};
+		2F8C2FBC2EA1E04B00E31225 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 2F8C2FAC2EA1E04B00E31225 /* BiliTopShelfExtension */;
+		};
 		4930B97F2D686DC30074E861 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -57,10 +96,19 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		4930B8FD2D686DC30074E861 /* BilibiliLive */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (4930B97F2D686DC30074E861 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = BilibiliLive; sourceTree = "<group>"; };
+		2F8C2FB12EA1E04B00E31225 /* BiliTopShelfExtension */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (2F8C2FBC2EA1E04B00E31225 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = BiliTopShelfExtension; sourceTree = "<group>"; };
+		4930B8FD2D686DC30074E861 /* BilibiliLive */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (4930B97F2D686DC30074E861 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, 2F4F4E3E2EA213E900847139 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = BilibiliLive; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		2F8C2FAA2EA1E04B00E31225 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2F8C2FB02EA1E04B00E31225 /* TVServices.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F9B5734D260F5F7400771ED5 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -89,6 +137,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2F8C2FAE2EA1E04B00E31225 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2F8C2FAF2EA1E04B00E31225 /* TVServices.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		2FF3C8CE2E9A08D100EE002E /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
@@ -100,6 +156,8 @@
 			isa = PBXGroup;
 			children = (
 				4930B8FD2D686DC30074E861 /* BilibiliLive */,
+				2F8C2FB12EA1E04B00E31225 /* BiliTopShelfExtension */,
+				2F8C2FAE2EA1E04B00E31225 /* Frameworks */,
 				F9B57351260F5F7400771ED5 /* Products */,
 				2FF3C8CE2E9A08D100EE002E /* Recovered References */,
 			);
@@ -109,6 +167,7 @@
 			isa = PBXGroup;
 			children = (
 				F9B57350260F5F7400771ED5 /* BilibiliLive.app */,
+				2F8C2FAD2EA1E04B00E31225 /* BiliTopShelfExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -116,6 +175,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		2F8C2FAC2EA1E04B00E31225 /* BiliTopShelfExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2F8C2FBB2EA1E04B00E31225 /* Build configuration list for PBXNativeTarget "BiliTopShelfExtension" */;
+			buildPhases = (
+				2F8C2FA92EA1E04B00E31225 /* Sources */,
+				2F8C2FAA2EA1E04B00E31225 /* Frameworks */,
+				2F8C2FAB2EA1E04B00E31225 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				2F8C2FB12EA1E04B00E31225 /* BiliTopShelfExtension */,
+			);
+			name = BiliTopShelfExtension;
+			packageProductDependencies = (
+			);
+			productName = BiliTopShelfExtension;
+			productReference = 2F8C2FAD2EA1E04B00E31225 /* BiliTopShelfExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		F9B5734F260F5F7400771ED5 /* BilibiliLive */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F9B57362260F5F7600771ED5 /* Build configuration list for PBXNativeTarget "BilibiliLive" */;
@@ -125,10 +206,12 @@
 				F9B5734D260F5F7400771ED5 /* Frameworks */,
 				F9B5734E260F5F7400771ED5 /* Resources */,
 				499C75F7293096EC003160FB /* Embed Frameworks */,
+				2F8C2FB82EA1E04B00E31225 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				2F8C2FB62EA1E04B00E31225 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				4930B8FD2D686DC30074E861 /* BilibiliLive */,
@@ -165,9 +248,12 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastSwiftUpdateCheck = 1240;
+				LastSwiftUpdateCheck = 2600;
 				LastUpgradeCheck = 1610;
 				TargetAttributes = {
+					2F8C2FAC2EA1E04B00E31225 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
 					F9B5734F260F5F7400771ED5 = {
 						CreatedOnToolsVersion = 12.4;
 						LastSwiftMigration = 1240;
@@ -206,11 +292,19 @@
 			projectRoot = "";
 			targets = (
 				F9B5734F260F5F7400771ED5 /* BilibiliLive */,
+				2F8C2FAC2EA1E04B00E31225 /* BiliTopShelfExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		2F8C2FAB2EA1E04B00E31225 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F9B5734E260F5F7400771ED5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -243,6 +337,13 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		2F8C2FA92EA1E04B00E31225 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F9B5734C260F5F7400771ED5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -252,7 +353,90 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		2F8C2FB62EA1E04B00E31225 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2F8C2FAC2EA1E04B00E31225 /* BiliTopShelfExtension */;
+			targetProxy = 2F8C2FB52EA1E04B00E31225 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		2F8C2FB92EA1E04B00E31225 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = BiliTopShelfExtension/BiliTopShelfExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 22SKM3KM3L;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BiliTopShelfExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BiliTopShelfExtension;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.video";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = arm64;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.popsand.Bili.BiliTopShelfExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		2F8C2FBA2EA1E04B00E31225 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = BiliTopShelfExtension/BiliTopShelfExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 22SKM3KM3L;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BiliTopShelfExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BiliTopShelfExtension;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.video";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = arm64;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.popsand.Bili.BiliTopShelfExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
 		F9B57360260F5F7600771ED5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -377,6 +561,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = BilibiliLive/BilibiliLive.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 101;
 				DEVELOPMENT_TEAM = 22SKM3KM3L;
@@ -410,6 +595,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = BilibiliLive/BilibiliLive.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 101;
 				DEVELOPMENT_TEAM = 22SKM3KM3L;
@@ -439,6 +625,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2F8C2FBB2EA1E04B00E31225 /* Build configuration list for PBXNativeTarget "BiliTopShelfExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2F8C2FB92EA1E04B00E31225 /* Debug */,
+				2F8C2FBA2EA1E04B00E31225 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		F9B5734B260F5F7400771ED5 /* Build configuration list for PBXProject "BilibiliLive" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

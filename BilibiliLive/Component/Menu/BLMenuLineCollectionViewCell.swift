@@ -10,9 +10,10 @@ import UIKit
 class BLMenuLineCollectionViewCell: BLSettingLineCollectionViewCell {
     var iconImageView = UIImageView()
     var normailSelectView = UIView()
+    var beforeSelectCell: BLMenuLineCollectionViewCell?
     override func addsubViews() {
 //        selectedWhiteView.setAutoGlassEffectView(cornerRadius: selectedWhiteView.height / 2)
-        //上下选择的view
+        // 上下选择的view
         selectedWhiteView.setCornerRadius(cornerRadius: height / 2)
         selectedWhiteView.backgroundColor = UIColor(named: "menuCellColor")
         selectedWhiteView.isHidden = !isFocused
@@ -21,8 +22,8 @@ class BLMenuLineCollectionViewCell: BLSettingLineCollectionViewCell {
             make.edges.equalToSuperview()
         }
         selectedWhiteView.alpha = 0.7
-        
-        //之前选中的view
+
+        // 之前选中的view
         addSubview(normailSelectView)
         normailSelectView.snp.makeConstraints { make in
             make.edges.equalTo(selectedWhiteView)
@@ -53,9 +54,29 @@ class BLMenuLineCollectionViewCell: BLSettingLineCollectionViewCell {
         titleLabel.font = UIFont.systemFont(ofSize: 26, weight: .medium)
         titleLabel.textColor = UIColor(named: "titleColor")
     }
-    
+
+    override var preferredFocusEnvironments: [UIFocusEnvironment] {
+        if let beforeSelectCell = beforeSelectCell {
+            return [beforeSelectCell]
+        }
+        return []
+    }
+
     override func updateView() {
-        selectedWhiteView.isHidden = !(isFocused )
+        selectedWhiteView.isHidden = !isFocused
         normailSelectView.isHidden = !isSelected
+    }
+
+    override func didUpdateFocus(in context: UIFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {
+        super.didUpdateFocus(in: context, with: coordinator)
+      
+        // 前一个
+        if let beforeSelectCell = context.previouslyFocusedView as? BLMenuLineCollectionViewCell {
+            self.beforeSelectCell = beforeSelectCell
+            if !(context.nextFocusedView is BLMenuLineCollectionViewCell) {
+                setNeedsFocusUpdate()
+                updateFocusIfNeeded()
+            }
+        }
     }
 }

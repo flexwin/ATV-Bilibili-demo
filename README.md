@@ -40,19 +40,5 @@
  ![](imgs/5.png)
 
 
-
 ### Telegram Group
- - https://t.me/appletvbilibilidemo
-
-### 未签名iPA文件
-  登录Github账号并在GitHub Action 页面 https://github.com/yichengchen/ATV-Bilibili-demo/actions/workflows/build.yml 寻找最新 run 的底部 Artifacts 下载。
-
-### Links
-
-- App Icon [【22娘×33娘】亲爱的UP主，你怎么还在咕咕咕？](https://www.bilibili.com/video/BV1AB4y1k7em)
-
-- [thmatuza/MPEGDASHAVPlayerDemo](https://github.com/thmatuza/MPEGDASHAVPlayerDemo)
-
-- [dreamCodeMan/B-webmask](https://github.com/dreamCodeMan/B-webmask)
-
-- [分析Bilibili客户端的“哔哩必连”协议](https://xfangfang.github.io/028)
+ - https://t.me/+b8Xun-U98dUwNzY9

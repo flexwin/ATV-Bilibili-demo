@@ -61,11 +61,7 @@ class CategoryViewController: UIViewController, BLTabBarContentVCProtocol {
         typeCollectionView.delegate = self
         typeCollectionView.selectItem(at: IndexPath(item: 0, section: 0), animated: false, scrollPosition: .top)
         collectionView(typeCollectionView, didSelectItemAt: IndexPath(item: 0, section: 0))
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-
+        
         let backgroundView = UIView()
         if #available(tvOS 26.0, *) {
             backgroundView.setAutoGlassEffectView(cornerRadius: bigSornerRadius)

@@ -146,6 +146,14 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
             }
 
             SectionModel(title: "界面") {
+                Actions(title: "桌面ToShelf风格", message: "选择喜欢的风格",
+                        current: TopShelfDataManager.shared.getTopShelfStyle().desp,
+                        options: TopShelfStyle.allCases.filter({ !$0.hideInSetting }),
+                        optionString: TopShelfStyle.allCases.filter({ !$0.hideInSetting }).map({ $0.desp }))
+                {
+                    TopShelfDataManager.shared.setTopShelfStyle($0)
+                }
+
                 Actions(title: "启动时默认显示页面", message: "重启app生效",
                         current: Settings.lanchPage.desp,
                         options: LanchPage.allCases.filter({ !$0.hideInSetting }),

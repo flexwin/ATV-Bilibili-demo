@@ -93,13 +93,17 @@ struct BannerView: View {
                     focusedItem = .leftButton
                 }
             }
+
+            // 轮播pagesview
+            pagesView(viewModel: viewModel, selectIndex: $selectIndex)
         }
         .onAppear {
+            print("刷新数据")
             if showLoalData == 1 {
                 viewModel.createDatas()
             } else {
                 Task {
-                    try await viewModel.loadFavList(isReset: false)
+//                    try await viewModel.loadFavList(isReset: false)
                 }
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -121,6 +125,7 @@ struct BannerView: View {
                         viewModel.isAnimate = false
                     }
                     print("向左切换\(selectIndex)")
+                    viewModel.changPageAnimageTime()
                     viewModel.setIndex(index: selectIndex)
                 }
             case .right:
@@ -136,6 +141,7 @@ struct BannerView: View {
                     viewModel.isAnimate = false
                     print("向右\(selectIndex)")
 
+                    viewModel.changPageAnimageTime()
                     viewModel.setIndex(index: selectIndex)
                 }
 
@@ -149,6 +155,70 @@ struct BannerView: View {
             focusedItem = .leftButton
             currentFocusedItem = .leftGuide
         }
+    }
+}
+
+struct pagesView: View {
+    @ObservedObject var viewModel: BannerViewModel
+    @Binding var selectIndex: Int
+    @State private var progress: CGFloat = 0
+    @State private var timer: Timer? = nil
+
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            HStack(spacing: 12) {
+                ForEach(0 ..< viewModel.favdatas.count, id: \.self) { i in
+                    ZStack(alignment: .topLeading) {
+                        Rectangle()
+                            .fill(Color(.gray.withAlphaComponent(0.7)))
+                            .frame(width: i == selectIndex ? 55 : 14, height: 14)
+                            .cornerRadius(7)
+                            .animation(.easeInOut(duration: 0.3), value: selectIndex)
+
+                        if i == selectIndex {
+                            // 进度条
+                            Rectangle()
+                                .fill(Color("pageAnimateColor"))
+                                .frame(width: 55 * progress, height: 14)
+                                .offset(y: 0)
+                                .animation(.linear(duration: 0.05), value: progress)
+                        }
+                    }
+                    .cornerRadius(7)
+                }
+            }
+        }
+        .frame(width: 1920)
+        .padding(.bottom, 120)
+        .onAppear {
+            startProgressTimer()
+        }
+        .onDisappear {
+            timer?.invalidate()
+            timer = nil
+        }
+        .onChange(of: selectIndex) { _, _ in
+            resetProgress()
+        }
+    }
+
+    private func startProgressTimer() {
+        timer?.invalidate()
+        progress = 0
+        timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
+            if progress < 1.0 {
+                progress += 0.05 / viewModel.pageAnimageTime
+                print("pageTime \(viewModel.pageAnimageTime)")
+            } else {
+                progress = 0
+                selectIndex = (selectIndex + 1) % max(viewModel.favdatas.count, 1)
+                viewModel.setIndex(index: selectIndex)
+            }
+        }
+    }
+
+    private func resetProgress() {
+        progress = 0
     }
 }
 

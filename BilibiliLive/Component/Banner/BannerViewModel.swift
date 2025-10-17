@@ -5,8 +5,8 @@
 //  Created by iManTie on 10/11/25.
 //
 
-import UIKit
 import SwiftUI
+import UIKit
 
 class BannerViewModel: ObservableObject {
     @Published var favdatas: [FavData] = []
@@ -15,14 +15,16 @@ class BannerViewModel: ObservableObject {
     @Published var offsetY: CGFloat = 0
     @Published var currentIndex = 0
     @Published var resetFouce = 0
-    
+
     @Published var isAnimate = true
-    
+
+    @Published var pageAnimageTime = 5.0
+
     var focusedBannerButton: (() -> Void)?
     var overMoveLeft: (() -> Void)?
     var playAction: ((_ data: FavData) -> Void)?
     var detailAction: ((_ data: FavData) -> Void)?
-    
+
     func createDatas() {
         let ower = VideoOwner(mid: 3493082095946091, name: "不再犹豫的达达猪", face: "https://i0.hdslb.com/bfs/face/e6035d9cdc7df738988ccd6893b800106ef36201.jpg")
         let data1 = FavData(cover: "https://i0.hdslb.com/bfs/archive/79a14985ca2240cd7fb224bf264edd524616d3c4.jpg", upper: ower, id: 935456, title: "【巫师3 新手攻略】【巫师3 新手攻略】【巫师3 新手攻略】【巫师3 新手攻略】【巫师3 新手攻略】", intro: "「艾尔登法环」「ELDEN RING」7个“大卢恩”—6个“神授塔”（葛瑞克、拉卡德、拉塔恩、蒙葛特、蒙格、玛丽妮亚、无缘诞生者的大卢恩）（宁姆格福、西亚坛、盖利德、东亚坛、孤立、利耶尼亚神授塔）")
@@ -53,6 +55,13 @@ class BannerViewModel: ObservableObject {
         if index < favdatas.count {
             selectData = favdatas[index]
             currentIndex = selectData?.id ?? 0
+        }
+    }
+    
+    func changPageAnimageTime() {
+        self.pageAnimageTime = 20.0
+        BLAfter(afterTime: 10.0) {
+            self.pageAnimageTime = 5.0
         }
     }
 }

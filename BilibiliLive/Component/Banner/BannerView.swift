@@ -208,6 +208,7 @@ struct pagesView: View {
         timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
             if progress < 1.0 {
                 progress += 0.05 / viewModel.pageAnimageTime
+
             } else {
                 progress = 0
                 selectIndex = (selectIndex + 1) % max(viewModel.favdatas.count, 1)

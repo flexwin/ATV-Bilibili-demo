@@ -91,9 +91,7 @@ class CategoryViewController: UIViewController, BLTabBarContentVCProtocol {
         currentViewController = vc
         addChild(vc)
         contentView.addSubview(vc.view)
-        vc.view.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
+        vc.view.makeConstraintsToBindToSuperview()
         vc.didMove(toParent: self)
     }
 

@@ -20,7 +20,6 @@ struct BannerView: View {
     @State private var lastChangeTime = Date()
     @FocusState var focusedItem: FocusItem? // 当前焦点对象
     @State private var currentFocusedItem: FocusItem? // 当前焦点对象
-    @State private var selectIndex = 0
 
     var showLoalData = 0
 
@@ -30,7 +29,7 @@ struct BannerView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     // 例如显示加载数据
                     LazyHStack(spacing: 0) {
-                        ForEach(viewModel.favdatas, id: \.id) { item in
+                        ForEach(viewModel.BannerDatas, id: \.id) { item in
 
 //                            Image("cover")
 
@@ -53,14 +52,14 @@ struct BannerView: View {
             }
 
 //            // 底部渐变遮罩
-//            LinearGradient(
-//                colors: [.black.opacity(0.9), .clear],
-//                startPoint: .bottom,
-//                endPoint: .top
-//            )
-//            .ignoresSafeArea()
+            LinearGradient(
+                colors: [.black.opacity(0.9), .clear],
+                startPoint: .bottom,
+                endPoint: .top
+            )
+            .ignoresSafeArea()
 
-            Image("showBg")
+//            Image("showBg")
 
             // 用于转移焦点的button
             Button {
@@ -95,8 +94,8 @@ struct BannerView: View {
             }
 
             // 轮播pagesview
-            pagesView(viewModel: viewModel, selectIndex: $selectIndex)
-            
+            pagesView(viewModel: viewModel)
+
 //            userInfoView()
         }
         .onAppear {
@@ -105,7 +104,7 @@ struct BannerView: View {
                 viewModel.createDatas()
             } else {
                 Task {
-                    try await viewModel.loadFavList(isReset: false)
+                    try await viewModel.loadBannerDataList(isReset: false)
                 }
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -119,16 +118,16 @@ struct BannerView: View {
                 print("向左")
                 if currentFocusedItem == .leftButton {
                     // 在这里写你的动画逻辑，比如滚动或改变状态
-                    selectIndex = selectIndex - 1
-                    if selectIndex < 0 {
-                        selectIndex = 0
+                    viewModel.selectIndex = viewModel.selectIndex - 1
+                    if viewModel.selectIndex < 0 {
+                        viewModel.selectIndex = 0
                         viewModel.overMoveLeft?()
                     } else {
                         viewModel.isAnimate = false
                     }
-                    print("向左切换\(selectIndex)")
+                    print("向左切换\(viewModel.selectIndex)")
                     viewModel.changPageAnimageTime()
-                    viewModel.setIndex(index: selectIndex)
+                    viewModel.setIndex(index: viewModel.selectIndex)
                 }
             case .right:
 
@@ -136,15 +135,15 @@ struct BannerView: View {
 
                 if currentFocusedItem == .rightButton {
                     // 在这里写你的动画逻辑，比如滚动或改变状态
-                    selectIndex = selectIndex + 1
-                    if selectIndex >= viewModel.favdatas.count {
-                        selectIndex = 0
+                    viewModel.selectIndex = viewModel.selectIndex + 1
+                    if viewModel.selectIndex >= viewModel.BannerDatas.count {
+                        viewModel.selectIndex = 0
                     }
                     viewModel.isAnimate = false
-                    print("向右\(selectIndex)")
+                    print("向右\(viewModel.selectIndex)")
 
                     viewModel.changPageAnimageTime()
-                    viewModel.setIndex(index: selectIndex)
+                    viewModel.setIndex(index: viewModel.selectIndex)
                 }
 
             default: break
@@ -153,7 +152,7 @@ struct BannerView: View {
             currentFocusedItem = focusedItem
         }
         .onChange(of: viewModel.resetFouce) { _, _ in
-            selectIndex = 0
+            viewModel.selectIndex = 0
             focusedItem = .leftButton
             currentFocusedItem = .leftGuide
         }
@@ -162,22 +161,21 @@ struct BannerView: View {
 
 struct pagesView: View {
     @ObservedObject var viewModel: BannerViewModel
-    @Binding var selectIndex: Int
     @State private var progress: CGFloat = 0
     @State private var timer: Timer? = nil
 
     var body: some View {
         ZStack(alignment: .bottom) {
             HStack(spacing: 12) {
-                ForEach(0 ..< viewModel.favdatas.count, id: \.self) { i in
+                ForEach(Array(viewModel.BannerDatas.enumerated()), id: \.element.id) { i, _ in
                     ZStack(alignment: .topLeading) {
                         Rectangle()
                             .fill(Color(.gray.withAlphaComponent(0.7)))
-                            .frame(width: i == selectIndex ? 55 : 14, height: 14)
+                            .frame(width: i == viewModel.selectIndex ? 55 : 14, height: 14)
                             .cornerRadius(7)
-                            .animation(.easeInOut(duration: 0.3), value: selectIndex)
+                            .animation(.easeInOut(duration: 0.3), value: viewModel.selectIndex)
 
-                        if i == selectIndex {
+                        if i == viewModel.selectIndex {
                             // 进度条
                             Rectangle()
                                 .fill(Color("pageAnimateColor"))
@@ -199,7 +197,7 @@ struct pagesView: View {
             timer?.invalidate()
             timer = nil
         }
-        .onChange(of: selectIndex) { _, _ in
+        .onChange(of: viewModel.selectIndex) { _, _ in
             resetProgress()
         }
     }
@@ -213,8 +211,8 @@ struct pagesView: View {
 
             } else {
                 progress = 0
-                selectIndex = (selectIndex + 1) % max(viewModel.favdatas.count, 1)
-                viewModel.setIndex(index: selectIndex)
+                viewModel.selectIndex = (viewModel.selectIndex + 1) % max(viewModel.BannerDatas.count, 1)
+                viewModel.setIndex(index: viewModel.selectIndex)
             }
         }
     }
@@ -224,29 +222,26 @@ struct pagesView: View {
     }
 }
 
-
 struct userInfoView: View {
-    
     @StateObject var viewModel = splitViewModel()
-    
+
     var body: some View {
-        ZStack() {
+        ZStack {
             if #available(tvOS 26.0, *) {
                 HStack(spacing: 12) {
-
                     KFImage(URL(string: viewModel.userHeadIamgeUrl ?? "https://randomuser.me/api/portraits/men/75.jpg"))
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 55,height: 55)
+                        .frame(width: 55, height: 55)
                         .clipShape(Circle())
                         .cornerRadius(44)
-                    
+
                     Text(viewModel.userName ?? "mantie_bili")
                         .font(.footnote)
                         .frame(maxWidth: 200)
                         .lineLimit(1)
                 }
-                .onAppear() {
+                .onAppear {
                     viewModel.loadUserInfo()
                 }
                 .padding(8)
@@ -256,7 +251,7 @@ struct userInfoView: View {
                     KFImage(URL(string: viewModel.userHeadIamgeUrl ?? "https://randomuser.me/api/portraits/men/75.jpg"))
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 56,height: 56)
+                        .frame(width: 56, height: 56)
                         .clipShape(Circle())
                         .cornerRadius(28)
 
@@ -265,20 +260,18 @@ struct userInfoView: View {
                         .frame(maxWidth: 200)
                         .lineLimit(1)
                 }
-                .onAppear() {
+                .onAppear {
                     viewModel.loadUserInfo()
                 }
                 .padding(8)
                 .background(Color.black.opacity(0.6))
                 .clipShape(RoundedRectangle(cornerRadius: 36))
-            
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing) // 👈 关键
         .padding(24)
     }
 }
-
 
 struct infoView: View {
     @ObservedObject var viewModel: BannerViewModel
@@ -316,15 +309,20 @@ struct infoView: View {
             // 作者 和 介绍
             VStack(alignment: .leading) {
                 HStack(spacing: 12) {
-                    KFImage(URL(string: viewModel.selectData?.upper.face ?? ""))
-                        .resizable()
-                        .fade(duration: 0.2)
-                        .frame(width: 34, height: 34)
-                        .cornerRadius(17)
-                        .scaledToFill()
-                        .clipped()
+                    if let faceURLString = viewModel.selectData?.upper?.face,
+                       let url = URL(string: faceURLString) {
+                        KFImage(url)
+                            .cacheOriginalImage() // 缓存原图
+                            .loadDiskFileSynchronously() // 同步从磁盘加载
+                            .resizable()
+                            .fade(duration: 0.2)
+                            .frame(width: 34, height: 34)
+                            .cornerRadius(17)
+                            .scaledToFill()
+                            .clipped()
+                    }
 
-                    Text(viewModel.selectData?.upper.name ?? "")
+                    Text(viewModel.selectData?.upper?.name ?? "")
                         .foregroundStyle(.white)
                 }
                 if let intro = viewModel.selectData?.intro {

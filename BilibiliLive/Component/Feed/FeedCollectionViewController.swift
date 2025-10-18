@@ -141,7 +141,7 @@ class FeedCollectionViewController: UIViewController {
 
     func reloadData() {
         Task {
-            try await viewModel.loadFavList()
+            try await viewModel.loadBannerDataList()
         }
     }
 
@@ -207,7 +207,7 @@ class FeedCollectionViewController: UIViewController {
             collectionView.contentInset = UIEdgeInsets(top: collectionEdgeInsetTop, left: 0, bottom: 0, right: 0)
 
             Task {
-                try await viewModel.loadFavList()
+                try await viewModel.loadBannerDataList()
             }
 
         } else {

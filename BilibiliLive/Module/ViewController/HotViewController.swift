@@ -28,7 +28,7 @@ class HotViewController: StandardVideoCollectionViewController<VideoDetail.Info>
 }
 
 extension WebRequest {
-    static func requestHotVideo(page: Int) async throws -> HotData {
+    static func requestHotVideo(page: Int, pageSize: Int? = 40) async throws -> HotData {
         try await request(url: EndPoint.hot, parameters: ["pn": page, "ps": 40], noCookie: Settings.requestHotWithoutCookie)
     }
 }

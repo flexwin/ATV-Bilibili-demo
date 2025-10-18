@@ -107,6 +107,10 @@ struct DynamicFeedData: Codable, PlayableData, DisplayData {
         return modules.module_author.pub_time
     }
 
+    var ownerMid: Int? {
+        return modules.module_author.mid
+    }
+    
     let type: String
     let basic: Basic
     let modules: Modules

@@ -34,9 +34,9 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
     private var isFocusToCollectionViewLastCell = false
     private var lastCell: BLMenuLineCollectionViewCell?
 
-    @IBOutlet var bottomGuideView: UIButton!{
-        didSet{
-            bottomGuideView.setBackgroundImage(nil, for: .focused)     // 去掉聚焦背景
+    @IBOutlet var bottomGuideView: UIButton! {
+        didSet {
+            bottomGuideView.setBackgroundImage(nil, for: .focused) // 去掉聚焦背景
             bottomGuideView.setBackgroundImage(nil, for: .highlighted) // 去掉按下背景
         }
     }
@@ -188,6 +188,11 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
                            delay: 0,
                            usingSpringWithDamping: 0.8,
                            initialSpringVelocity: 0.5) {
+                if Settings.backToExit {
+                    if self.menuRecognizer != nil {
+                        self.view.removeGestureRecognizer(self.menuRecognizer!)
+                    }
+                }
                 self.menusView.alpha = 1
                 // 渐变显示子元素
                 self.leftCollectionView.alpha = 1
@@ -225,7 +230,7 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
                     self.usernameLabel.alpha = 1
                 }
                 self.menuIsShowing = true
-                
+
 //                if let recognizer = self.menuRecognizer {
 //                    self.view.addGestureRecognizer(recognizer)
 //                }
@@ -277,6 +282,12 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
             //                if let recognizer = self.menuRecognizer {
             //                    self.view.addGestureRecognizer(recognizer)
             //                }
+
+            if Settings.backToExit {
+                if self.menuRecognizer != nil {
+                    self.view.addGestureRecognizer(self.menuRecognizer!)
+                }
+            }
         }
     }
 
@@ -288,23 +299,6 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
         let lastLeft: () -> Void = { [weak self] in
             self?.showMenus()
         }
-        let followsViewController = FollowsViewController()
-        followsViewController.didSelectToLastLeft = lastLeft
-        followsViewController.isToToped = { [weak self] isToped in
-            if isToped {
-                BLAnimate(withDuration: 0.3) {
-                    self?.menusView.alpha = 1
-                    self?.homeIcon.alpha = 1
-                }
-            } else {
-                BLAnimate(withDuration: 0.3) {
-                    self?.menusView.alpha = 0
-                    self?.homeIcon.alpha = 0
-                }
-            }
-        }
-
-        cellModels.append(CellModel(iconImage: UIImage(systemName: "person.crop.circle.badge.checkmark"), title: "关注", contentVC: followsViewController))
 
         let FeedViewController = FeedViewController()
 
@@ -324,17 +318,37 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
         FeedViewController.didSelectToLastLeft = lastLeft
         cellModels.append(CellModel(iconImage: UIImage(systemName: "timelapse"), title: "推荐", contentVC: FeedViewController))
 
+        let followsViewController = FollowsViewController()
+        followsViewController.didSelectToLastLeft = lastLeft
+        followsViewController.isToToped = { [weak self] isToped in
+            if isToped {
+                BLAnimate(withDuration: 0.3) {
+                    self?.menusView.alpha = 1
+                    self?.homeIcon.alpha = 1
+                }
+            } else {
+                BLAnimate(withDuration: 0.3) {
+                    self?.menusView.alpha = 0
+                    self?.homeIcon.alpha = 0
+                }
+            }
+        }
+
+        cellModels.append(CellModel(iconImage: UIImage(systemName: "person.crop.circle.badge.checkmark"), title: "关注", contentVC: followsViewController))
+
         let HotViewController = HotViewController()
         HotViewController.didSelectToLastLeft = lastLeft
         cellModels.append(CellModel(iconImage: UIImage(systemName: "livephoto.play"), title: "热门", contentVC: HotViewController))
 
-        cellModels.append(CellModel(iconImage: UIImage(systemName: "theatermasks.circle"), title: "排行榜", contentVC: RankingViewController()))
-        cellModels.append(CellModel(iconImage: UIImage(systemName: "infinity.circle"), title: "直播", contentVC: LiveViewController()))
-
         cellModels.append(CellModel(iconImage: UIImage(systemName: "star.circle"), title: "收藏", contentVC: FavoriteViewController()))
+
+        cellModels.append(CellModel(iconImage: UIImage(systemName: "theatermasks.circle"), title: "全部分区", contentVC: RankingViewController()))
+
         cellModels.append(CellModel(iconImage: UIImage(systemName: "gauge.with.needle"), title: "历史记录", contentVC: HistoryViewController()))
 
-        let logout = CellModel(iconImage: UIImage(systemName: "magnifyingglass.circle"), title: "搜索", autoSelect: false) {
+        cellModels.append(CellModel(iconImage: UIImage(systemName: "infinity.circle"), title: "直播", contentVC: LiveViewController()))
+
+        let search = CellModel(iconImage: UIImage(systemName: "magnifyingglass.circle"), title: "搜索", autoSelect: false) {
             [weak self] in
 //            self?.actionLogout()
             let resultVC = SearchResultViewController()
@@ -342,15 +356,15 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
             searchVC.searchResultsUpdater = resultVC
             self?.present(UISearchContainerViewController(searchController: searchVC), animated: true)
         }
-        cellModels.append(logout)
-        cellModels.append(CellModel(iconImage: UIImage(systemName: "gear"), title: "设置", contentVC: PersonalViewController.create()))
+        cellModels.append(search)
+
+        cellModels.append(CellModel(iconImage: UIImage(systemName: "gear"), title: "我的", contentVC: PersonalViewController.create()))
     }
 
     func setViewController(vc: UIViewController, isHiddenMenus: Bool = true) {
         currentViewController?.willMove(toParent: nil)
         currentViewController?.view.removeFromSuperview()
         currentViewController?.removeFromParent()
-
         currentViewController = vc
         addChild(vc)
         contentView.addSubview(vc.view)
@@ -394,7 +408,9 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
     override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
         guard let buttonPress = presses.first?.type else { return }
         if buttonPress == .rightArrow {
-            hiddenMenus()
+            if menuIsShowing {
+                hiddenMenus()
+            }
         } else if buttonPress == .menu {
             return
         }
@@ -458,7 +474,7 @@ extension MenusViewController: UICollectionViewDelegate {
            context.nextFocusedView === bottomGuideView {
             return
         }
-        
+
         guard context.nextFocusedIndexPath != nil else {
             hiddenMenus()
             return

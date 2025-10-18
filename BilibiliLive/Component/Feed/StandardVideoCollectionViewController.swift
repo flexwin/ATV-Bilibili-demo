@@ -14,7 +14,7 @@ protocol PlayableData: DisplayData {
 
 class StandardVideoCollectionViewController<T: PlayableData>: UIViewController, BLTabBarContentVCProtocol {
     let focusToMenuView = FocusToMenuView()
-    
+
     let collectionVC = FeedCollectionViewController()
     var lastReloadDate = Date()
     var reloadInterval: TimeInterval = 60 * 60
@@ -50,14 +50,14 @@ class StandardVideoCollectionViewController<T: PlayableData>: UIViewController, 
         collectionVC.backMenuAction = backMenuAction
         collectionVC.didUpdateFocus = didUpdateFocus
         collectionVC.didSelectToLastLeft = didSelectToLastLeft
-        
-        collectionVC.isToToped = {[weak self] isToped in
+
+        collectionVC.isToToped = { [weak self] isToped in
             self?.focusToMenuView.isUserInteractionEnabled = !isToped
             self?.isToToped?(isToped)
         }
-        
+
         BLAfter(afterTime: 5) {
-            if self.isNeedFocusToMenu?() ?? false{
+            if self.isNeedFocusToMenu?() ?? false {
                 self.focusToMenuView.alpha = 1
                 self.view.addSubview(self.focusToMenuView)
                 self.focusToMenuView.snp.makeConstraints { make in
@@ -66,7 +66,6 @@ class StandardVideoCollectionViewController<T: PlayableData>: UIViewController, 
                     make.width.equalTo(1)
                 }
             }
-            
         }
     }
 

@@ -32,6 +32,20 @@ enum LanchPage: Codable, CaseIterable {
     
 }
 
+enum Bannertype: Codable, CaseIterable {
+    case BannertypeFeed
+    case BannertypeFollows
+    case BannertypeHot
+    case BannertypeHistory
+    case BannertypeFav
+    case BannertypeNormal
+    
+    var hideInSetting: Bool {
+        self == .BannertypeNormal
+    }
+}
+
+
 class Defaults {
     static let shared = Defaults()
     private init() {}
@@ -144,6 +158,12 @@ enum Settings {
 
     @UserDefaultCodable("Settings.LanchPage", defaultValue: .LanchPageFollows)
     static var lanchPage: LanchPage
+    
+    @UserDefaultCodable("Settings.Bannertype", defaultValue: .BannertypeFav)
+    static var bannerType: Bannertype
+    
+    @UserDefault("Settings.ui.backToExit", defaultValue: false)
+    static var backToExit: Bool
     
 }
 

@@ -8,6 +8,7 @@
 import UIKit
 
 let bigItmeCount = 3
+
 let largeItmeCount = 4
 let normalItmeCount = 5
 
@@ -75,7 +76,7 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
             )
             header.pinToVisibleBounds = false
             section.boundarySupplementaryItems = [header]
-            section.interGroupSpacing = 10
+            section.interGroupSpacing = 14
             return section
         }
         return UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -91,12 +92,12 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
         settingImageView.tintColor = .secondaryLabel
         view.addSubview(settingImageView)
         settingImageView.snp.makeConstraints { make in
-          
+
             make.width.height.equalTo(600)
-            make.centerX.equalTo(880/2)
+            make.centerX.equalTo(880 / 2)
             make.centerY.equalToSuperview()
         }
-        
+
         view.addSubview(collectionView)
         collectionView.remembersLastFocusedIndexPath = false
         collectionView.snp.makeConstraints { make in
@@ -158,6 +159,13 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
             }
 
             SectionModel(title: "界面") {
+                Actions(title: "首页轮播内容", message: "选择轮播内容",
+                        current: Settings.bannerType.desp,
+                        options: Bannertype.allCases.filter({ !$0.hideInSetting }),
+                        optionString: Bannertype.allCases.filter({ !$0.hideInSetting }).map({ $0.desp }))
+                {
+                    Settings.bannerType = $0
+                }
                 Actions(title: "桌面ToShelf风格", message: "选择喜欢的风格",
                         current: TopShelfDataManager.shared.getTopShelfStyle().desp,
                         options: TopShelfStyle.allCases.filter({ !$0.hideInSetting }),
@@ -181,6 +189,7 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
                 {
                     Settings.displayStyle = $0
                 }
+                Toggle(title: "返回按钮返回桌面", setting: Settings.backToExit, onChange: Settings.backToExit.toggle())
                 Toggle(title: "侧边栏菜单自动切换", setting: Settings.sideMenuAutoSelectChange, onChange: Settings.sideMenuAutoSelectChange.toggle())
                 Toggle(title: "隐藏视频的序号", setting: Settings.hiddenCellIndex, onChange: Settings.hiddenCellIndex.toggle())
 
@@ -377,7 +386,7 @@ class SettingsSwitchCell: BLMotionCollectionViewCell {
     func setupView() {
         contentView.addSubview(titleLabel)
         contentView.addSubview(descLabel)
-        contentView.layer.cornerRadius = contentView.height/2
+        contentView.layer.cornerRadius = contentView.height / 2
 
         titleLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(33)
@@ -464,6 +473,25 @@ extension LanchPage {
         case .LanchPageHot:
             return "热门视频"
         case .LanchPageNormal:
+            return "我的关注"
+        }
+    }
+}
+
+extension Bannertype {
+    var desp: String {
+        switch self {
+        case .BannertypeHot:
+            return "热门视频"
+        case .BannertypeFeed:
+            return "推荐"
+        case .BannertypeFollows:
+            return "关注视频"
+        case .BannertypeHistory:
+            return "历史记录"
+        case .BannertypeFav:
+            return "我的收藏"
+        case .BannertypeNormal:
             return "我的关注"
         }
     }

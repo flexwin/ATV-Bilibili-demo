@@ -32,9 +32,9 @@ class LiveViewController: CategoryViewController {
 class MyLiveViewController: StandardVideoCollectionViewController<LiveRoom> {
     override func setupCollectionView() {
         super.setupCollectionView()
-        collectionVC.styleOverride = .sideBar
-        collectionVC.pageSize = 10
-        reloadInterval = 15 * 60
+//        collectionVC.styleOverride = .sideBar
+//        collectionVC.pageSize = 10
+//        reloadInterval = 15 * 60
     }
 
     override func request(page: Int) async throws -> [LiveRoom] {
@@ -62,9 +62,9 @@ class AreaLiveViewController: StandardVideoCollectionViewController<AreaLiveRoom
 
     override func setupCollectionView() {
         super.setupCollectionView()
-        collectionVC.styleOverride = .sideBar
-        collectionVC.pageSize = 10
-        reloadInterval = 15 * 60
+//        collectionVC.styleOverride = .sideBar
+//        collectionVC.pageSize = 10
+//        reloadInterval = 15 * 60
     }
 
     override func request(page: Int) async throws -> [AreaLiveRoom] {

@@ -57,7 +57,7 @@ class FavoriteVideoContentViewController: StandardVideoCollectionViewController<
     }
 
     override func setupCollectionView() {
-        collectionVC.styleOverride = .sideBar
+//        collectionVC.styleOverride = .sideBar
         super.setupCollectionView()
     }
 

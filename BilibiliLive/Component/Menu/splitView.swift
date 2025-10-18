@@ -108,49 +108,8 @@ struct splitView: View {
                         .tag(item)
                 }
             }
-            .tabViewStyle(.tabBarOnly)
+            .tabViewStyle(.sidebarAdaptable)
             
-            if #available(tvOS 26.0, *) {
-                HStack(spacing: 12) {
-                    KFImage(URL(string: viewModel.userHeadIamgeUrl ?? "https://randomuser.me/api/portraits/men/75.jpg"))
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 55,height: 55)
-                        .clipShape(Circle())
-                        .cornerRadius(44)
-                    
-                    Text(viewModel.userName ?? "mantie_bili")
-                        .font(.footnote)
-                        .frame(maxWidth: 200)
-                        .lineLimit(1)
-                }
-                .onAppear() {
-                    viewModel.loadUserInfo()
-                }
-                .padding(8)
-                .glassEffect()
-            } else {
-//                HStack(spacing: 12) {
-//                    KFImage(URL(string: viewModel.userHeadIamgeUrl ?? "https://randomuser.me/api/portraits/men/75.jpg"))
-//                        .resizable()
-//                        .scaledToFill()
-//                        .frame(width: 56,height: 56)
-//                        .clipShape(Circle())
-//                        .cornerRadius(28)
-//                    
-//                    Text(viewModel.userName ?? "mantie_bili")
-//                        .font(.footnote)
-//                        .frame(maxWidth: 200)
-//                        .lineLimit(1)
-//                }
-//                .onAppear() {
-//                    viewModel.loadUserInfo()
-//                }
-//                .padding(8)
-//                .background(Color.secondary.opacity(0.6))
-//                .clipShape(RoundedRectangle(cornerRadius: 36))
-            
-            }
         }
     }
 }

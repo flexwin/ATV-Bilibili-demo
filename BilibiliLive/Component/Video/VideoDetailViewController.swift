@@ -14,6 +14,7 @@ import Alamofire
 import Kingfisher
 import MarqueeLabel
 import SnapKit
+import SwiftUI
 import TVUIKit
 
 class VideoDetailViewController: UIViewController {
@@ -61,7 +62,7 @@ class VideoDetailViewController: UIViewController {
             coinButton.setTansform(x: 1.2, y: 1.2)
         }
     }
-    
+
     @IBOutlet var favButton: BLCustomButton! {
         didSet {
             favButton.action = { [weak self] isFocused in
@@ -71,7 +72,7 @@ class VideoDetailViewController: UIViewController {
             favButton.setTansform(x: 1.3, y: 1.3)
         }
     }
-    
+
     @IBOutlet var dislikeButton: BLCustomButton! {
         didSet {
             dislikeButton.action = { [weak self] isFocused in
@@ -81,7 +82,6 @@ class VideoDetailViewController: UIViewController {
             dislikeButton.setTansform(x: 1.4, y: 1.4)
         }
     }
-
 
     @IBOutlet var noteView: NoteDetailView!
     @IBOutlet var noteViewHeight: NSLayoutConstraint!
@@ -118,6 +118,9 @@ class VideoDetailViewController: UIViewController {
     private var cid = 0
     private var data: VideoDetail?
     @IBOutlet var scrollView: UIScrollView!
+
+    @IBOutlet var allPageDatasViewButton: UIButton!
+
     private var didSentCoins = 0 {
         didSet {
             if didSentCoins > 0 {
@@ -142,12 +145,14 @@ class VideoDetailViewController: UIViewController {
                 infoVisualEffectView.layer.cornerRadius = infoEffectViewCornerRadius
                 infoVisualEffectView.effect = UIGlassEffect(style: .clear)
             } else {
-                infoVisualEffectView.contentView.layer.cornerRadius = infoEffectViewCornerRadius
-                infoVisualEffectView.contentView.clipsToBounds = true
+                infoVisualEffectView.layer.cornerRadius = infoEffectViewCornerRadius
+                infoVisualEffectView.clipsToBounds = true
             }
         }
     }
-
+    
+    @IBOutlet weak var pageGuideView: UIView!
+    
     private var isBangumi = false
     private var startTime = 0
     private var pages = [VideoPage]()
@@ -181,7 +186,7 @@ class VideoDetailViewController: UIViewController {
     deinit {
         print("🧹 VideoDetailViewController deinitialized")
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         Task { await fetchData() }
@@ -217,6 +222,16 @@ class VideoDetailViewController: UIViewController {
             focusGuidePlay.bottomAnchor.constraint(equalTo: actionButtonSpaceView.bottomAnchor),
         ])
         focusGuidePlay.preferredFocusEnvironments = [playButton]
+        
+        let pageFocusGuidePlay = UIFocusGuide()
+        view.addLayoutGuide(pageFocusGuidePlay)
+        NSLayoutConstraint.activate([
+            pageFocusGuidePlay.topAnchor.constraint(equalTo: pageGuideView.topAnchor),
+            pageFocusGuidePlay.leftAnchor.constraint(equalTo: pageGuideView.leftAnchor),
+            pageFocusGuidePlay.rightAnchor.constraint(equalTo: pageGuideView.rightAnchor),
+            pageFocusGuidePlay.bottomAnchor.constraint(equalTo: pageGuideView.bottomAnchor),
+        ])
+        pageFocusGuidePlay.preferredFocusEnvironments = [allPageDatasViewButton]
 
         replysCollectionView.publisher(for: \.contentSize).sink { [weak self] _ in
 //            self?.repliesCollectionViewHeightConstraints.constant = newSize.height
@@ -253,9 +268,8 @@ class VideoDetailViewController: UIViewController {
 //                self.dislikeButton.transform = .identity
 //            },
 //        ])
-        
+
         UIView.animate(springDuration: 0.6, bounce: 0.3) {
-           
             self.likeButton.alpha = 1
             self.likeButton.transform = .identity
             self.coinButton.alpha = 1
@@ -597,6 +611,39 @@ class VideoDetailViewController: UIViewController {
         dislikeButton.isOn.toggle()
         ApiRequest.requestDislike(aid: aid, dislike: dislikeButton.isOn)
     }
+
+    @IBAction func allPageDatasAction(_ sender: Any) {
+        #if DEBUGe
+        #else
+        var hostingController: UIHostingController<VideoListView>! // ✅ 先声明变量
+        // ✅ 创建 SwiftUI 视图
+        let swiftUIView = VideoListView(pages: pages) {[weak self] page in
+            guard let self = self else { return }
+            
+            hostingController?.dismiss(animated: true)
+            let player = VideoPlayerViewController(playInfo: PlayInfo(aid: isBangumi ? page.page : aid, cid: page.cid, epid: page.epid, isBangumi: isBangumi))
+            player.data = isBangumi ? nil : data
+
+            let index = pages.firstIndex(of: page)
+            let indexPath = IndexPath(row: index ?? 0, section: 0)
+
+            pageCollectionView.selectItem(at: indexPath, animated: true, scrollPosition: .centeredHorizontally)
+            let seq = pages.dropFirst(indexPath.item).map({ PlayInfo(aid: self.aid, cid: $0.cid, isBangumi: self.isBangumi) })
+            if seq.count > 0 {
+                let nextProvider = VideoNextProvider(seq: seq)
+                player.nextProvider = nextProvider
+            }
+            present(player, animated: true, completion: nil)
+            
+        }
+        
+        // 用 UIHostingController 包装
+        hostingController = UIHostingController(rootView: swiftUIView)
+
+        // ✅ present 弹出 SwiftUI 界面
+        present(hostingController, animated: true, completion: nil)
+        #endif
+    }
 }
 
 extension VideoDetailViewController: UICollectionViewDelegate {
@@ -781,7 +828,7 @@ class RelatedVideoCell: BLMotionCollectionViewCell {
             make.top.left.right.equalToSuperview()
             make.width.equalTo(imageView.snp.height).multipliedBy(16.0 / 9)
         }
-        
+
         if #available(tvOS 26.0, *) {
             imageView.adjustsImageWhenAncestorFocused = true
         } else {

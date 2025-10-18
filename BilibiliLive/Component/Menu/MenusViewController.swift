@@ -30,13 +30,23 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
     private var selectMenuItem: CellModel?
 
     private var currentIndex: IndexPath?
+    private var isShowFocusToMainView = false
+    private var isFocusToCollectionViewLastCell = false
+    private var lastCell: BLMenuLineCollectionViewCell?
+
+    @IBOutlet var bottomGuideView: UIButton!{
+        didSet{
+            bottomGuideView.setBackgroundImage(nil, for: .focused)     // 去掉聚焦背景
+            bottomGuideView.setBackgroundImage(nil, for: .highlighted) // 去掉按下背景
+        }
+    }
 
     @IBOutlet var menusView: UIView! {
         didSet {
             if #available(tvOS 26.0, *) {
-                menusView.setGlassEffectView(style: .clear,
-                                             cornerRadius: lessBigSornerRadius,
-                                             tintColor: UIColor(named: "mainBgColor")?.withAlphaComponent(0.9))
+                menusView.setGlassEffectView(style: .regular,
+//                                             cornerRadius: lessBigSornerRadius,
+                                             tintColor: UIColor(named: "mainBgColor"))
 
             } else {
                 menusView.setBlurEffectView(cornerRadius: lessBigSornerRadius)
@@ -105,7 +115,14 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
 
         NotificationCenter.default.removeObserver(self)
         NotificationCenter.default.addObserver(forName: EVENT_COLLECTION_TO_SHOW_MENU, object: nil, queue: .main) { [weak self] _ in
-            self?.showMenus()
+            guard let self = self else { return }
+            if menuIsShowing {
+                hiddenMenus()
+                self.view.setNeedsFocusUpdate()
+                self.view.updateFocusIfNeeded()
+            } else {
+                showMenus()
+            }
         }
 
         menuRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleMenuPress))
@@ -128,6 +145,18 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
     }
 
     override var preferredFocusEnvironments: [UIFocusEnvironment] {
+        if isFocusToCollectionViewLastCell, let lastCell = lastCell {
+            return [lastCell]
+        }
+
+        if isShowFocusToMainView, let currentViewController = currentViewController {
+            if currentViewController is FollowsViewController
+                || currentViewController is FeedViewController {
+            } else {
+                return [currentViewController]
+            }
+        }
+
         guard let indexPath = currentIndex,
               let cell = leftCollectionView.cellForItem(at: indexPath) else {
             return [leftCollectionView]
@@ -149,75 +178,66 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
         NotificationCenter.default.post(name: EVENT_COLLECTION_TO_TOP, object: nil)
     }
 
-    @objc func handleRightPress() {
-        hiddenMenus()
-    }
-
     func showMenus() {
-//        guard !menuIsShowing else { return }
-        BLAnimate(withDuration: 0.3) {
-            self.menusView.alpha = 1
-            self.homeIcon.alpha = 1
-        }
-        BLAfter(afterTime: 0.1) {
-            if let currentIndex = self.currentIndex {
-                self.focus(on: currentIndex)
-            }
-            // 先轻微预备动画（让 UI 有呼吸感）
-            UIView.animate(withDuration: 0.15, delay: 0, options: [.curveEaseOut]) {
-                self.menusView.transform = CGAffineTransform(scaleX: 0.97, y: 0.97)
-            } completion: { _ in
-                UIView.animate(withDuration: 0.45,
-                               delay: 0,
-                               usingSpringWithDamping: 0.8,
-                               initialSpringVelocity: 0.5) {
-                    if let recognizer = self.menuRecognizer {
-                        self.view.removeGestureRecognizer(recognizer)
-                    }
+        isShowFocusToMainView = false
+        // 先轻微预备动画（让 UI 有呼吸感）
+        UIView.animate(withDuration: 0.15, delay: 0, options: [.curveEaseOut]) {
+            self.menusView.transform = CGAffineTransform(scaleX: 0.97, y: 0.97)
+        } completion: { _ in
+            UIView.animate(withDuration: 0.45,
+                           delay: 0,
+                           usingSpringWithDamping: 0.8,
+                           initialSpringVelocity: 0.5) {
+                self.menusView.alpha = 1
+                // 渐变显示子元素
+                self.leftCollectionView.alpha = 1
+                self.homeIcon.alpha = 0
 
-                    // 渐变显示子元素
-                    self.leftCollectionView.alpha = 1
-                    self.homeIcon.alpha = 0
+                // 调整布局常量
+                self.collectionTop.constant = 40
+                self.menusViewHeight.constant = 1020
+                self.headViewLeading.constant = 20
+                self.headingViewTop.constant = 20
+                self.menuViewWidth.constant = 320
+                self.menusView.setCornerRadius(cornerRadius: bigSornerRadius)
 
-                    // 调整布局常量
-                    self.collectionTop.constant = 40
-                    self.menusViewHeight.constant = 1020
-                    self.headViewLeading.constant = 20
-                    self.headingViewTop.constant = 20
-                    self.menuViewWidth.constant = 320
-                    self.menusView.setCornerRadius(cornerRadius: bigSornerRadius)
+                // 阴影更柔和
+                self.menusView.layer.shadowOpacity = 0.3
+                self.menusView.layer.shadowRadius = 18
+                self.menusView.transform = .identity
 
-                    // 阴影更柔和
-                    self.menusView.layer.shadowOpacity = 0.3
-                    self.menusView.layer.shadowRadius = 18
-                    self.menusView.transform = .identity
-
-                    // label 动画
-                    UIView.transition(with: self.usernameLabel,
-                                      duration: 0.3,
-                                      options: [.transitionCrossDissolve]) {
-                        self.usernameLabel.text = self.userName
-                    }
-                    self.usernameLabel.transform = CGAffineTransform(scaleX: 1.01, y: 1.01)
-                    self.usernameLabel.alpha = 0.6
-                    self.view.layoutIfNeeded()
-                } completion: { _ in
-                    // 平滑过渡
-                    BLAnimate(withDuration: 0.3) {
-                        self.usernameLabel.transform = .identity
-                        self.usernameLabel.alpha = 1
-                    }
-                    self.menuIsShowing = true
+                // label 动画
+                UIView.transition(with: self.usernameLabel,
+                                  duration: 0.3,
+                                  options: [.transitionCrossDissolve]) {
+                    self.usernameLabel.text = self.userName
                 }
+                self.usernameLabel.transform = CGAffineTransform(scaleX: 1.01, y: 1.01)
+                self.usernameLabel.alpha = 0.6
+                self.view.layoutIfNeeded()
+                if let currentIndex = self.currentIndex {
+                    self.focus(on: currentIndex)
+                }
+            } completion: { _ in
+                // 平滑过渡
+                BLAnimate(withDuration: 0.3) {
+                    self.usernameLabel.transform = .identity
+                    self.usernameLabel.alpha = 1
+                }
+                self.menuIsShowing = true
+                
+//                if let recognizer = self.menuRecognizer {
+//                    self.view.addGestureRecognizer(recognizer)
+//                }
             }
         }
     }
 
     func hiddenMenus(isHiddenSubView: Bool = false) {
-        
-        if isHiddenSubView{
+        isShowFocusToMainView = true
+        if isHiddenSubView {
             menusView.alpha = 0
-            self.homeIcon.alpha = 0
+            homeIcon.alpha = 0
         }
         UIView.animate(withDuration: 0.4,
                        delay: 0,
@@ -254,10 +274,9 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
                 self.usernameLabel.alpha = 1
             }
             self.menuIsShowing = false
-
-            if let recognizer = self.menuRecognizer {
-                self.view.addGestureRecognizer(recognizer)
-            }
+            //                if let recognizer = self.menuRecognizer {
+            //                    self.view.addGestureRecognizer(recognizer)
+            //                }
         }
     }
 
@@ -271,7 +290,7 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
         }
         let followsViewController = FollowsViewController()
         followsViewController.didSelectToLastLeft = lastLeft
-        followsViewController.isToToped = {[weak self] isToped in
+        followsViewController.isToToped = { [weak self] isToped in
             if isToped {
                 BLAnimate(withDuration: 0.3) {
                     self?.menusView.alpha = 1
@@ -289,6 +308,19 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
 
         let FeedViewController = FeedViewController()
 
+        FeedViewController.isToToped = { [weak self] isToped in
+            if isToped {
+                BLAnimate(withDuration: 0.3) {
+                    self?.menusView.alpha = 1
+                    self?.homeIcon.alpha = 1
+                }
+            } else {
+                BLAnimate(withDuration: 0.3) {
+                    self?.menusView.alpha = 0
+                    self?.homeIcon.alpha = 0
+                }
+            }
+        }
         FeedViewController.didSelectToLastLeft = lastLeft
         cellModels.append(CellModel(iconImage: UIImage(systemName: "timelapse"), title: "推荐", contentVC: FeedViewController))
 
@@ -358,6 +390,30 @@ class MenusViewController: UIViewController, BLTabBarContentVCProtocol {
             }
         }
     }
+
+    override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        guard let buttonPress = presses.first?.type else { return }
+        if buttonPress == .rightArrow {
+            hiddenMenus()
+        } else if buttonPress == .menu {
+            return
+        }
+        super.pressesEnded(presses, with: event)
+    }
+
+    override func didUpdateFocus(in context: UIFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {
+        super.didUpdateFocus(in: context, with: coordinator)
+
+        isFocusToCollectionViewLastCell = false
+        // 前一个
+        if context.previouslyFocusedView is BLMenuLineCollectionViewCell,
+           context.nextFocusedView === bottomGuideView {
+            isFocusToCollectionViewLastCell = true
+
+            view.setNeedsFocusUpdate()
+            view.updateFocusIfNeeded()
+        }
+    }
 }
 
 extension MenusViewController: UICollectionViewDataSource {
@@ -367,6 +423,7 @@ extension MenusViewController: UICollectionViewDataSource {
         if let icon = cellModels[indexPath.item].iconImage {
             cell.iconImageView.image = icon
         }
+        lastCell = cell
         return cell
     }
 
@@ -383,12 +440,25 @@ extension MenusViewController: UICollectionViewDelegate {
         }
         selectMenuItem = model
         model.action?()
-
         currentIndex = indexPath
+
+        BLAfter(afterTime: 1) {
+            BLAnimate(withDuration: 0.3) {
+                if self.isShowFocusToMainView {
+                    self.view.setNeedsFocusUpdate()
+                    self.view.updateFocusIfNeeded()
+                }
+            }
+        }
     }
 
     func collectionView(_ collectionView: UICollectionView, didUpdateFocusIn context: UICollectionViewFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {
         // 检查新的焦点是否是UICollectionViewCell，失去焦点后隐藏菜单
+        if context.previouslyFocusedView is BLMenuLineCollectionViewCell,
+           context.nextFocusedView === bottomGuideView {
+            return
+        }
+        
         guard context.nextFocusedIndexPath != nil else {
             hiddenMenus()
             return

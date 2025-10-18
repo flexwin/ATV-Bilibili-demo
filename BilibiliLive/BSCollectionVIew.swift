@@ -15,11 +15,6 @@ class BSCollectionVIew: UICollectionView {
          // Drawing code
      }
      */
-    override var canBecomeFocused: Bool {
-        return false
-    }
-
-    override var preferredFocusedView: UIView? {
-        return visibleCells.last
-    }
+    
+    
 }

@@ -96,6 +96,8 @@ struct BannerView: View {
 
             // 轮播pagesview
             pagesView(viewModel: viewModel, selectIndex: $selectIndex)
+            
+//            userInfoView()
         }
         .onAppear {
             print("刷新数据")
@@ -103,7 +105,7 @@ struct BannerView: View {
                 viewModel.createDatas()
             } else {
                 Task {
-//                    try await viewModel.loadFavList(isReset: false)
+                    try await viewModel.loadFavList(isReset: false)
                 }
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -221,6 +223,62 @@ struct pagesView: View {
         progress = 0
     }
 }
+
+
+struct userInfoView: View {
+    
+    @StateObject var viewModel = splitViewModel()
+    
+    var body: some View {
+        ZStack() {
+            if #available(tvOS 26.0, *) {
+                HStack(spacing: 12) {
+
+                    KFImage(URL(string: viewModel.userHeadIamgeUrl ?? "https://randomuser.me/api/portraits/men/75.jpg"))
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 55,height: 55)
+                        .clipShape(Circle())
+                        .cornerRadius(44)
+                    
+                    Text(viewModel.userName ?? "mantie_bili")
+                        .font(.footnote)
+                        .frame(maxWidth: 200)
+                        .lineLimit(1)
+                }
+                .onAppear() {
+                    viewModel.loadUserInfo()
+                }
+                .padding(8)
+                .glassEffect()
+            } else {
+                HStack(spacing: 12) {
+                    KFImage(URL(string: viewModel.userHeadIamgeUrl ?? "https://randomuser.me/api/portraits/men/75.jpg"))
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 56,height: 56)
+                        .clipShape(Circle())
+                        .cornerRadius(28)
+
+                    Text(viewModel.userName ?? "mantie_bili")
+                        .font(.footnote)
+                        .frame(maxWidth: 200)
+                        .lineLimit(1)
+                }
+                .onAppear() {
+                    viewModel.loadUserInfo()
+                }
+                .padding(8)
+                .background(Color.black.opacity(0.6))
+                .clipShape(RoundedRectangle(cornerRadius: 36))
+            
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing) // 👈 关键
+        .padding(24)
+    }
+}
+
 
 struct infoView: View {
     @ObservedObject var viewModel: BannerViewModel

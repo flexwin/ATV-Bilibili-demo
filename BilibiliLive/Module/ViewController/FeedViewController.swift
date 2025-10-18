@@ -8,21 +8,24 @@
 import UIKit
 
 class FeedViewController: StandardVideoCollectionViewController<ApiRequest.FeedResp.Items> {
-    
     override func viewDidLoad() {
-        self.isNeedFocusToMenu = {
+        isNeedFocusToMenu = {
             true
         }
-        self.isShowTopCover = {
+        isShowTopCover = {
             true
         }
         super.viewDidLoad()
     }
+
     override func setupCollectionView() {
         super.setupCollectionView()
         collectionVC.pageSize = 1
         collectionVC.isShowCove = true
-       
+    }
+
+    override func reloadOtherRequest() {
+        collectionVC.reloadData()
     }
 
     override func request(page: Int) async throws -> [ApiRequest.FeedResp.Items] {

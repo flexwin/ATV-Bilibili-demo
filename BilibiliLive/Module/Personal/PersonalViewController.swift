@@ -47,8 +47,10 @@ class PersonalViewController: UIViewController, BLTabBarContentVCProtocol {
     private var leftCollectionViewHiddenLeft: CGFloat = -300
 
     var cellModels = [CellModel]()
-    
-    private var isFirstShowMenus = true
+
+    private var isFirstShowMenus = false
+    private var isShowFocusToMainView = false
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupData()
@@ -60,7 +62,7 @@ class PersonalViewController: UIViewController, BLTabBarContentVCProtocol {
         menusLeft.constant = leftCollectionViewShowLeft
 
         if #available(tvOS 26.0, *) {
-            menusbgView.setGlassEffectView(style: .regular, cornerRadius: bigSornerRadius)
+            menusbgView.setGlassEffectView(style: .clear, cornerRadius: bigSornerRadius)
         } else {
             menusbgView.setBlurEffectView(cornerRadius: bigSornerRadius)
             if #available(tvOS 26.0, *) {
@@ -69,6 +71,11 @@ class PersonalViewController: UIViewController, BLTabBarContentVCProtocol {
                 menusbgView.setBlurEffectView(cornerRadius: lessBigSornerRadius)
                 menusbgView.setCornerRadius(cornerRadius: lessBigSornerRadius, borderColor: .lightGray, borderWidth: 0.5)
             }
+        }
+
+        NotificationCenter.default.removeObserver(self)
+        NotificationCenter.default.addObserver(forName: EVENT_COLLECTION_TO_SHOW_MENU, object: nil, queue: .main) { [weak self] _ in
+            self?.hiddenMenus()
         }
     }
 
@@ -102,7 +109,6 @@ class PersonalViewController: UIViewController, BLTabBarContentVCProtocol {
         currentViewController = vc
         addChild(vc)
         contentView.addSubview(vc.view)
-        vc.view.makeConstraintsToBindToSuperview()
         vc.didMove(toParent: self)
     }
 
@@ -131,11 +137,17 @@ class PersonalViewController: UIViewController, BLTabBarContentVCProtocol {
         }
 
         if isFocused {
+            isShowFocusToMainView = false
+            if let currentIndex = currentIndex {
+                focus(on: currentIndex)
+            }
+
             UIView.animate(springDuration: 0.4, bounce: 0.2) {
                 leftCollectionViewLeft.constant = leftCollectionViewShowLeft
                 self.view.layoutIfNeeded()
             }
         } else {
+            isShowFocusToMainView = true
             UIView.animate(springDuration: 0.4, bounce: 0.6) {
                 leftCollectionViewLeft.constant = leftCollectionViewHiddenLeft
                 self.view.layoutIfNeeded()
@@ -147,6 +159,23 @@ class PersonalViewController: UIViewController, BLTabBarContentVCProtocol {
         currentIndex = indexPath
         view.setNeedsFocusUpdate()
         view.updateFocusIfNeeded()
+    }
+
+    override var preferredFocusEnvironments: [UIFocusEnvironment] {
+        if isShowFocusToMainView {
+            if let currentViewController = currentViewController {
+                return [currentViewController]
+            }
+        }
+        guard let indexPath = currentIndex,
+              let cell = leftCollectionView.cellForItem(at: indexPath) else {
+            return [leftCollectionView]
+        }
+        return [cell]
+    }
+
+    func hiddenMenus() {
+        isShowMenus(isFocused: false)
     }
 }
 
@@ -174,14 +203,34 @@ extension PersonalViewController: UICollectionViewDataSource {
 
 extension PersonalViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let model = cellModels[indexPath.item]
-        if let vc = model.contentVC {
-            setViewController(vc: vc)
+        if currentViewController != nil {
+            isShowMenus(isFocused: false)
         }
-        model.action?()
         currentIndex = indexPath
-        BLAfter(afterTime: 0.3) {
-            self.isShowMenus(isFocused: false)
+
+        BLAfter(afterTime: 0.4) {
+            var waitTime = 0.3
+            let model = self.cellModels[indexPath.item]
+            if let vc = model.contentVC {
+                self.setViewController(vc: vc)
+
+                if vc is ToViewViewController
+                    || vc is FollowUpsViewController {
+                    waitTime = 1
+                }else if vc is HistoryViewController
+                    || vc is WeeklyWatchViewController{
+                    waitTime = 2
+                }
+            }
+            model.action?()
+            BLAfter(afterTime: waitTime) {
+                BLAnimate(withDuration: 0.3) {
+                    if self.isShowFocusToMainView {
+                        self.view.setNeedsFocusUpdate()
+                        self.view.updateFocusIfNeeded()
+                    }
+                }
+            }
         }
     }
 

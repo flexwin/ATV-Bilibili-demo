@@ -20,8 +20,9 @@ class CategoryViewController: UIViewController, BLTabBarContentVCProtocol {
     let contentView = UIView()
     weak var currentViewController: UIViewController?
     private var currentIndex: IndexPath?
-    
-    private var isFirstShowMenus = true
+
+    private var isFirstShowMenus = false
+    private var isShowFocusToMainView = false
 
     private var leftCollectionViewShowLeft: CGFloat = 40.0
     private var leftCollectionViewHiddenLeft: CGFloat = -300
@@ -31,6 +32,11 @@ class CategoryViewController: UIViewController, BLTabBarContentVCProtocol {
         if categories.isEmpty {
         } else {
             initTypeCollectionView()
+        }
+
+        NotificationCenter.default.removeObserver(self)
+        NotificationCenter.default.addObserver(forName: EVENT_COLLECTION_TO_SHOW_MENU, object: nil, queue: .main) { [weak self] _ in
+            self?.hiddenMenus()
         }
     }
 
@@ -61,7 +67,7 @@ class CategoryViewController: UIViewController, BLTabBarContentVCProtocol {
         typeCollectionView.delegate = self
         typeCollectionView.selectItem(at: IndexPath(item: 0, section: 0), animated: false, scrollPosition: .top)
         collectionView(typeCollectionView, didSelectItemAt: IndexPath(item: 0, section: 0))
-        
+
         let backgroundView = UIView()
         if #available(tvOS 26.0, *) {
             backgroundView.setAutoGlassEffectView(cornerRadius: bigSornerRadius)
@@ -100,6 +106,21 @@ class CategoryViewController: UIViewController, BLTabBarContentVCProtocol {
         view.setNeedsFocusUpdate()
         view.updateFocusIfNeeded()
     }
+
+    override var preferredFocusEnvironments: [UIFocusEnvironment] {
+        if isShowFocusToMainView, let currentViewController = currentViewController {
+            return [currentViewController]
+        }
+        guard let indexPath = currentIndex,
+              let cell = typeCollectionView.cellForItem(at: indexPath) else {
+            return [typeCollectionView]
+        }
+        return [cell]
+    }
+
+    func hiddenMenus() {
+        isShowMenus(isFocused: false)
+    }
 }
 
 extension CategoryViewController: UICollectionViewDataSource {
@@ -124,6 +145,11 @@ extension CategoryViewController: UICollectionViewDataSource {
         }
 
         if isFocused {
+            isShowFocusToMainView = false
+            if let currentIndex = currentIndex {
+                focus(on: currentIndex)
+            }
+
             UIView.animate(springDuration: 0.4, bounce: 0.2) {
                 self.typeCollectionView.snp.updateConstraints { make in
                     make.left.equalToSuperview().offset(leftCollectionViewShowLeft)
@@ -131,6 +157,7 @@ extension CategoryViewController: UICollectionViewDataSource {
                 view.layoutIfNeeded()
             }
         } else {
+            isShowFocusToMainView = true
             UIView.animate(springDuration: 0.4, bounce: 0.6) {
                 self.typeCollectionView.snp.updateConstraints { make in
                     make.left.equalToSuperview().offset(leftCollectionViewHiddenLeft)
@@ -144,8 +171,21 @@ extension CategoryViewController: UICollectionViewDataSource {
 extension CategoryViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         isShowMenus(isFocused: false)
-        setViewController(vc: categories[indexPath.item].contentVC)
         currentIndex = indexPath
+        
+        BLAfter(afterTime: 0.4) {
+            self.setViewController(vc: self.categories[indexPath.item].contentVC)
+            
+             BLAfter(afterTime: 1) {
+                 BLAnimate(withDuration: 0.3) {
+                     if self.isShowFocusToMainView {
+                         self.view.setNeedsFocusUpdate()
+                         self.view.updateFocusIfNeeded()
+                     }
+                 }
+             }
+        }
+       
     }
 
     func collectionView(_ collectionView: UICollectionView, didUpdateFocusIn context: UICollectionViewFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {

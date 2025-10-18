@@ -85,11 +85,23 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = UIColor(named: "settingBgColor")
+        let settingImageView = UIImageView(image: UIImage(systemName: "gear"))
+        settingImageView.contentMode = .scaleAspectFit
+        settingImageView.tintColor = .secondaryLabel
+        view.addSubview(settingImageView)
+        settingImageView.snp.makeConstraints { make in
+          
+            make.width.height.equalTo(600)
+            make.centerX.equalTo(880/2)
+            make.centerY.equalToSuperview()
+        }
+        
         view.addSubview(collectionView)
         collectionView.remembersLastFocusedIndexPath = false
         collectionView.snp.makeConstraints { make in
             make.top.right.bottom.equalToSuperview()
-            make.left.equalToSuperview().offset(40)
+            make.left.equalToSuperview().offset(880)
         }
 
         collectionView.delegate = self
@@ -365,16 +377,16 @@ class SettingsSwitchCell: BLMotionCollectionViewCell {
     func setupView() {
         contentView.addSubview(titleLabel)
         contentView.addSubview(descLabel)
-        contentView.layer.cornerRadius = 10
+        contentView.layer.cornerRadius = contentView.height/2
 
         titleLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(20)
+            make.leading.equalToSuperview().offset(33)
             make.centerY.equalToSuperview()
             make.trailing.lessThanOrEqualTo(descLabel.snp.leading).offset(-10)
         }
 
         descLabel.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().offset(-20)
+            make.trailing.equalToSuperview().offset(-33)
             make.centerY.equalToSuperview()
         }
 
@@ -390,12 +402,12 @@ class SettingsSwitchCell: BLMotionCollectionViewCell {
                 titleLabel.textColor = UIColor.black
                 descLabel.textColor = UIColor.black
             } else {
-                contentView.backgroundColor = UIColor.clear
+                contentView.backgroundColor = UIColor.white.withAlphaComponent(0.1)
                 titleLabel.textColor = UIColor.white
                 descLabel.textColor = UIColor.secondaryLabel
             }
         } else {
-            contentView.backgroundColor = isFocused ? UIColor.white : UIColor.clear
+            contentView.backgroundColor = isFocused ? UIColor.white : UIColor.white.withAlphaComponent(0.4)
             titleLabel.textColor = .black
             descLabel.textColor = UIColor.secondaryLabel
         }

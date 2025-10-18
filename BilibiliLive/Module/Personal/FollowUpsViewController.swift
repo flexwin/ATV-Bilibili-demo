@@ -23,6 +23,7 @@ class FollowUpsViewController: UIViewController {
     var requesting = false
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = UIColor(named: "settingBgColor")
         let layout = UICollectionViewCompositionalLayout {
             [weak self] _, _ in
             return self?.makeGridLayoutSection()

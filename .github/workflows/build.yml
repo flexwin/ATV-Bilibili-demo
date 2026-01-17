@@ -1,8 +1,9 @@
 name: Build workflow
 on:
   pull_request:
+    branches: [ "main", "features/develop" ]
   push:
-    branches: [ "main" ]
+    branches: [ "main", "features/develop" ]
 
 jobs:
   build:
@@ -20,6 +21,33 @@ jobs:
         run: |
           fastlane build_unsign_ipa
 
+      # 根据分支重命名 IPA 文件
+      - name: Rename IPA based on branch
+        run: |
+          if [ -f "BilbiliAtvDemo.ipa" ]; then
+            if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+              mv BilbiliAtvDemo.ipa BilbiliAtvDemo-main.ipa
+              echo "main_ipa_file=BilbiliAtvDemo-main.ipa" >> $GITHUB_OUTPUT
+            elif [ "${{ github.ref }}" == "refs/heads/features/develop" ]; then
+              mv BilbiliAtvDemo.ipa BilbiliAtvDemo-develop.ipa
+              echo "develop_ipa_file=BilbiliAtvDemo-develop.ipa" >> $GITHUB_OUTPUT
+            else
+              mv BilbiliAtvDemo.ipa BilbiliAtvDemo-${{ github.ref_name }}.ipa
+            fi
+          else
+            echo "Error: IPA file not found!"
+            exit 1
+          fi
+      
+      # 上传 Artifacts（所有分支都上传）
+      - name: Upload IPA to Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: BilbiliAtvDemo-${{ github.ref_name }}-unsigned-ipa
+          path: BilbiliAtvDemo-${{ github.ref_name }}.ipa
+          retention-days: 30
+          if-no-files-found: error
+          
       # - name: List, filter and delete artifacts
       #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       #   uses: actions/github-script@v6
